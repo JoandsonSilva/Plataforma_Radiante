@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Produtos - Radiante Perfumaria{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Produtos</h1>
+        <a href="{{ url_for('products.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Novo Produto
+        </a>
+    </div>
+
+    <!-- Debug: Número de produtos -->
+    <div class="alert alert-info">
+        Total de produtos: {{ products|length }}
+    </div>
+
+    <div class="row">
+        {% if products %}
+            {% for product in products %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% set image_path = 'img/' + product.name + '.JPG' %}
+                    <img src="{{ url_for('static', filename=image_path) }}" 
+                         class="card-img-top" 
+                         alt="{{ product.name }}"
+                         style="height: 200px; object-fit: cover;"
+                         onerror="this.onerror=null; this.src='{{ url_for('static', filename='img/default.jpg') }}'; console.log('Imagem não encontrada: {{ image_path }}')">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">
+                            <strong>Categoria:</strong> {{ product.category }}<br>
+                            <strong>Preço:</strong> R$ {{ "%.2f"|format(product.price) }}<br>
+                            <strong>Estoque:</strong> {{ product.stock }} unidades<br>
+                            <strong>Status:</strong> 
+                            <span class="badge {% if product.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ product.status }}
+                            </span>
+                        </p>
+                        <div class="btn-group">
+                            <a href="{{ url_for('products.edit', id=product.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a href="{{ url_for('products.delete', id=product.id) }}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Tem certeza que deseja excluir este produto?')">
+                                <i class="fas fa-trash"></i> Excluir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    Nenhum produto encontrado.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

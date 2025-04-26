@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}Nova Venda - Radiante Perfumaria{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Nova Venda - {{ reseller.name }}</h1>
+        <a href="{{ url_for('resellers.show', id=reseller.id) }}" class="btn btn-outline-dark">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-gradient-dark text-white">
+            <h5 class="card-title mb-0">Registro de Venda</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('resellers.create_sale', id=reseller.id) }}">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="sale_date" class="form-label">Data da Venda</label>
+                        <input type="date" class="form-control" id="sale_date" name="sale_date" value="{{ now.strftime('%Y-%m-%d') }}" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="description" class="form-label">Descrição (opcional)</label>
+                        <textarea class="form-control" id="description" name="description" rows="1"></textarea>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Produtos Vendidos</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="products-container">
+                            <div class="row product-row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Produto</label>
+                                    <select class="form-select product-select" name="product_ids[]" required>
+                                        <option value="">Selecione um produto</option>
+                                        {% for product in products %}
+                                        <option value="{{ product.id }}" data-price="{{ product.price }}" data-stock="{{ product.stock }}">
+                                            {{ product.name }} - R$ {{ "%.2f"|format(product.price) }} ({{ product.stock }} em estoque)
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Quantidade</label>
+                                    <input type="number" class="form-control quantity-input" name="quantities[]" min="1" required>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="button" class="btn btn-danger remove-product" style="display: none;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-outline-primary" id="add-product">
+                            <i class="fas fa-plus"></i> Adicionar Produto
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Valor Total</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="text" class="form-control" id="total-amount" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Comissão ({{ reseller.commission_rate }}%)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">R$</span>
+                            <input type="text" class="form-control" id="commission" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-dark">
+                        <i class="fas fa-save"></i> Registrar Venda
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productsContainer = document.getElementById('products-container');
+    const addProductBtn = document.getElementById('add-product');
+    const totalAmountInput = document.getElementById('total-amount');
+    const commissionInput = document.getElementById('commission');
+    const commissionRate = {{ reseller.commission_rate }};
+
+    function updateTotals() {
+        let totalAmount = 0;
+        document.querySelectorAll('.product-row').forEach(row => {
+            const select = row.querySelector('.product-select');
+            const quantity = row.querySelector('.quantity-input');
+            if (select.value && quantity.value) {
+                const price = parseFloat(select.options[select.selectedIndex].dataset.price);
+                totalAmount += price * parseInt(quantity.value);
+            }
+        });
+
+        totalAmountInput.value = totalAmount.toFixed(2);
+        const commission = totalAmount * (commissionRate / 100);
+        commissionInput.value = commission.toFixed(2);
+    }
+
+    function addProductRow() {
+        const row = document.querySelector('.product-row').cloneNode(true);
+        row.querySelector('.product-select').value = '';
+        row.querySelector('.quantity-input').value = '';
+        row.querySelector('.remove-product').style.display = 'block';
+        productsContainer.appendChild(row);
+
+        // Adicionar event listeners para a nova linha
+        setupRowEventListeners(row);
+    }
+
+    function setupRowEventListeners(row) {
+        const select = row.querySelector('.product-select');
+        const quantity = row.querySelector('.quantity-input');
+        const removeBtn = row.querySelector('.remove-product');
+
+        select.addEventListener('change', function() {
+            const option = this.options[this.selectedIndex];
+            const stock = parseInt(option.dataset.stock);
+            quantity.max = stock;
+            updateTotals();
+        });
+
+        quantity.addEventListener('input', updateTotals);
+
+        removeBtn.addEventListener('click', function() {
+            if (document.querySelectorAll('.product-row').length > 1) {
+                row.remove();
+                updateTotals();
+            }
+        });
+    }
+
+    // Configurar event listeners para a primeira linha
+    setupRowEventListeners(document.querySelector('.product-row'));
+
+    // Event listener para adicionar nova linha
+    addProductBtn.addEventListener('click', addProductRow);
+});
+</script>
+{% endblock %} 

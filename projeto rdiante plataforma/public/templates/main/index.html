@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Radiante Perfumaria - Início{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row align-items-center min-vh-75">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold mb-4">Bem-vindo à Radiante Perfumaria</h1>
+            <p class="lead mb-4">Sua plataforma completa para gestão de perfumaria, revendedores e tarefas.</p>
+            <div class="d-grid gap-2 d-md-flex">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-4 me-md-2">
+                    <i class="fas fa-user-plus"></i> Começar Agora
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg px-4">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://images.unsplash.com/photo-1614179689702-355944cd0918?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Perfumes" class="img-fluid rounded shadow">
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-box fa-3x text-primary mb-3"></i>
+                    <h3 class="card-title">Gestão de Produtos</h3>
+                    <p class="card-text">Controle completo do seu estoque de perfumes e produtos relacionados.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-3x text-success mb-3"></i>
+                    <h3 class="card-title">Revendedores</h3>
+                    <p class="card-text">Gerencie sua rede de revendedores e acompanhe suas vendas.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-tasks fa-3x text-info mb-3"></i>
+                    <h3 class="card-title">Tarefas</h3>
+                    <p class="card-text">Organize suas atividades com um sistema similar ao Trello.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <h2 class="mb-4">Por que escolher a Radiante Perfumaria?</h2>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="feature-box">
+                        <i class="fas fa-lock fa-2x text-primary mb-3"></i>
+                        <h4>Segurança</h4>
+                        <p>Seus dados protegidos com as melhores práticas de segurança.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="feature-box">
+                        <i class="fas fa-mobile-alt fa-2x text-primary mb-3"></i>
+                        <h4>Responsivo</h4>
+                        <p>Acesse de qualquer dispositivo, a qualquer momento.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="feature-box">
+                        <i class="fas fa-chart-line fa-2x text-primary mb-3"></i>
+                        <h4>Relatórios</h4>
+                        <p>Análises detalhadas para melhor tomada de decisão.</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="feature-box">
+                        <i class="fas fa-headset fa-2x text-primary mb-3"></i>
+                        <h4>Suporte</h4>
+                        <p>Equipe dedicada para ajudar você quando precisar.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .min-vh-75 {
+        min-height: 75vh;
+    }
+    
+    .feature-box {
+        padding: 20px;
+        border-radius: 10px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-box:hover {
+        transform: translateY(-5px);
+    }
+    
+    .feature-box i {
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %} 

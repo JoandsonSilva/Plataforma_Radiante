@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Radiante Perfumaria{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Login</h2>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <form method="POST" action="{{ url_for('auth.login') }}">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label" for="remember">Lembrar-me</label>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Entrar</button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p>Ou</p>
+                        <button id="google-login" class="btn btn-outline-danger">
+                            <i class="fab fa-google"></i> Entrar com Google
+                        </button>
+                        <div id="loading-spinner" class="mt-3" style="display: none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                            <p class="mt-2">Aguardando autenticação...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <p>Não tem uma conta? <a href="{{ url_for('auth.register') }}">Registre-se</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB3b8HR1Gcmfp4YMh7Ibj7a-X7sGYd_6uk",
+        authDomain: "plataforma-radiante.firebaseapp.com",
+        projectId: "plataforma-radiante",
+        storageBucket: "plataforma-radiante.firebasestorage.app",
+        messagingSenderId: "990096383941",
+        appId: "1:990096383941:web:46541971f9a5e86ead75ac",
+        measurementId: "G-VZZZYRQZFP"
+    };
+
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Configurar provedor do Google
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
+
+    // Configurar persistência da sessão
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .catch((error) => {
+            console.error("Erro ao configurar persistência:", error);
+        });
+
+    // Verificar estado de autenticação
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            // Usuário já está autenticado no Firebase
+            user.getIdToken().then((token) => {
+                // Enviar token para o backend
+                fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token: token })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect;
+                    } else {
+                        alert('Erro ao fazer login: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao fazer login. Tente novamente.');
+                });
+            });
+        }
+    });
+
+    // Função para login com Google
+    document.getElementById('google-login').addEventListener('click', () => {
+        const loadingSpinner = document.getElementById('loading-spinner');
+        loadingSpinner.style.display = 'block';
+
+        firebase.auth().signInWithPopup(provider)
+            .then((result) => {
+                loadingSpinner.style.display = 'none';
+                // O token já será enviado pelo onAuthStateChanged
+            })
+            .catch((error) => {
+                loadingSpinner.style.display = 'none';
+                console.error('Erro no login:', error);
+                alert('Erro ao fazer login com Google. Tente novamente.');
+            });
+    });
+
+    // Função para login com email/senha
+    async function loginWithEmail(email, password) {
+        try {
+            const rememberMe = document.getElementById('remember').checked;
+            const persistence = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+            
+            await firebase.auth().setPersistence(persistence);
+            const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+            const token = await userCredential.user.getIdToken();
+            
+            // Enviar token para o backend
+            const response = await fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token: token })
+            });
+            
+            if (response.ok) {
+                window.location.href = '/';
+            } else {
+                const data = await response.json();
+                showMessage(data.error || 'Erro ao fazer login', 'danger');
+            }
+        } catch (error) {
+            showMessage(error.message, 'danger');
+        }
+    }
+</script>
+{% endblock %} 

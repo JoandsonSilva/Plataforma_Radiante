@@ -1,0 +1,528 @@
+{% extends "base.html" %}
+
+{% block title %}{{ reseller.name }} - Radiante Perfumaria{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <img src="{{ reseller.photo_url or url_for('static', filename='img/default-avatar.png') }}" 
+                     class="rounded-circle" 
+                     alt="{{ reseller.name }}"
+                     style="width: 80px; height: 80px; object-fit: cover;">
+            </div>
+            <h1 class="mb-0">{{ reseller.name }}</h1>
+        </div>
+        <div>
+            <a href="{{ url_for('resellers.index') }}" class="btn btn-outline-dark">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <a href="{{ url_for('resellers.edit', id=reseller.id) }}" class="btn btn-dark">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Informações do Revendedor -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-dark text-white">
+                    <h5 class="card-title mb-0">Informações do Revendedor</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Email:</strong> {{ reseller.email }}</p>
+                    <p><strong>Telefone:</strong> {{ reseller.phone }}</p>
+                    <p><strong>CPF/CNPJ:</strong> {{ reseller.document }}</p>
+                    <p><strong>Endereço:</strong> {{ reseller.address }}</p>
+                    <p><strong>Cidade:</strong> {{ reseller.city }}/{{ reseller.state }}</p>
+                    <p><strong>CEP:</strong> {{ reseller.zip_code }}</p>
+                    <p><strong>Status:</strong> 
+                        <span class="badge bg-{{ 'success' if reseller.is_active else 'danger' }}">
+                            {{ 'Ativo' if reseller.is_active else 'Inativo' }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumo de Vendas e Comissões -->
+        <div class="col-md-8 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-dark text-white">
+                    <h5 class="card-title mb-0">Resumo de Vendas e Comissões</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-light border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Total de Vendas</h6>
+                                    <h3>R$ {{ "%.2f"|format(sales|sum(attribute='amount')) }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-light border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Comissão Total</h6>
+                                    <h3>R$ {{ "%.2f"|format(sales|sum(attribute='commission')) }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card bg-light border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Taxa de Comissão</h6>
+                                    <h3>{{ reseller.commission_rate }}%</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estoque Atual do Revendedor -->
+        <div class="col-md-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-dark text-white">
+                    <h5 class="card-title mb-0">Estoque Atual</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade em Estoque</th>
+                                    <th>Valor Unitário</th>
+                                    <th>Valor Total em Estoque</th>
+                                    <th>Última Venda</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product, quantity, last_sale in reseller.current_inventory %}
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ quantity }}</td>
+                                    <td>R$ {{ "%.2f"|format(product.price) }}</td>
+                                    <td>R$ {{ "%.2f"|format(product.price * quantity) }}</td>
+                                    <td>
+                                        {% if last_sale %}
+                                            {{ last_sale.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico de Vendas por Produto -->
+        <div class="col-md-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-gradient-dark text-white">
+                    <h5 class="card-title mb-0">Histórico de Vendas por Produto</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade Vendida</th>
+                                    <th>Valor Total Vendido</th>
+                                    <th>Primeira Venda</th>
+                                    <th>Última Venda</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product, total_quantity, total_amount, first_sale, last_sale in reseller.sales_by_product %}
+                                <tr>
+                                    <td>{{ product.name }}</td>
+                                    <td>{{ total_quantity }}</td>
+                                    <td>R$ {{ "%.2f"|format(total_amount) }}</td>
+                                    <td>{{ first_sale.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ last_sale.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Histórico de Pedidos -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-header bg-gradient-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Histórico de Pedidos</h5>
+            <div>
+                <div class="btn-group me-2">
+                    <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="filterOrders('all')">Todos</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterOrders('pending')">Pendentes</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterOrders('approved')">Aprovados</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterOrders('delivered')">Entregues</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterOrders('cancelled')">Cancelados</a></li>
+                    </ul>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteSelectedOrders()">
+                    <i class="fas fa-trash"></i> Excluir Selecionados
+                </button>
+                <a href="{{ url_for('resellers.create_order', id=reseller.id) }}" class="btn btn-light btn-sm">
+                    <i class="fas fa-plus"></i> Novo Pedido
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAllOrders" onchange="toggleAllOrders(this)">
+                            </th>
+                            <th>Data</th>
+                            <th>Produtos</th>
+                            <th>Valor Total</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr data-status="{{ order.status }}">
+                            <td>
+                                <input type="checkbox" class="order-checkbox" value="{{ order.id }}">
+                            </td>
+                            <td>{{ order.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <ul>
+                                    {% for product, quantity, price in order.products_with_details %}
+                                        <li>{{ product.name }} - {{ quantity }} unidade(s) - R$ {{ "%.2f"|format(price) }} cada</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>R$ {{ "%.2f"|format(order.total_price) }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if order.status == 'delivered' else 'warning' }}">
+                                    {{ order.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="statusDropdown{{ order.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Alterar Status
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="statusDropdown{{ order.id }}">
+                                        <li>
+                                            <form method="POST" action="{{ url_for('resellers.update_order_status', id=reseller.id, order_id=order.id) }}">
+                                                <input type="hidden" name="status" value="pending">
+                                                <button type="submit" class="dropdown-item">Pendente</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('resellers.update_order_status', id=reseller.id, order_id=order.id) }}">
+                                                <input type="hidden" name="status" value="approved">
+                                                <button type="submit" class="dropdown-item">Aprovado</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('resellers.update_order_status', id=reseller.id, order_id=order.id) }}">
+                                                <input type="hidden" name="status" value="delivered">
+                                                <button type="submit" class="dropdown-item">Entregue</button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('resellers.update_order_status', id=reseller.id, order_id=order.id) }}">
+                                                <input type="hidden" name="status" value="cancelled">
+                                                <button type="submit" class="dropdown-item">Cancelado</button>
+                                            </form>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form method="POST" action="{{ url_for('resellers.delete_order', id=reseller.id, order_id=order.id) }}" onsubmit="return confirm('Tem certeza que deseja excluir este pedido?');">
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="fas fa-trash"></i> Excluir
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Histórico de Vendas -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-gradient-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Histórico de Vendas</h5>
+            <div>
+                <div class="btn-group me-2">
+                    <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="filterSales('all')">Todos</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterSales('month')">Último Mês</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="filterSales('year')">Último Ano</a></li>
+                    </ul>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteSelectedSales()">
+                    <i class="fas fa-trash"></i> Excluir Selecionados
+                </button>
+                <div>
+                    <a href="{{ url_for('resellers.monthly_sales', id=reseller.id) }}" class="btn btn-light btn-sm me-2">
+                        <i class="fas fa-calendar-alt"></i> Registrar Venda Mensal
+                    </a>
+                    <a href="{{ url_for('resellers.create_sale', id=reseller.id) }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus"></i> Nova Venda
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="salesTable">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAllSales" onchange="toggleAllSales(this)">
+                            </th>
+                            <th>Data</th>
+                            <th>Produtos</th>
+                            <th>Valor da Venda</th>
+                            <th>Comissão</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                        <tr data-date="{{ sale.sale_date.strftime('%Y-%m-%d') }}">
+                            <td>
+                                <input type="checkbox" class="sale-checkbox" value="{{ sale.id }}">
+                            </td>
+                            <td>{{ sale.sale_date.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <ul class="list-unstyled mb-0">
+                                    {% for product, quantity, price in sale.products_with_details %}
+                                        <li>
+                                            {{ product.name }} - 
+                                            {{ quantity }} unidade(s) - 
+                                            R$ {{ "%.2f"|format(price) }} cada
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td>R$ {{ "%.2f"|format(sale.amount) }}</td>
+                            <td>R$ {{ "%.2f"|format(sale.commission) }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('resellers.delete_sale', id=reseller.id, sale_id=sale.id) }}" onsubmit="return confirm('Tem certeza que deseja excluir esta venda?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-dark {
+    background: linear-gradient(45deg, #2c3e50, #34495e);
+}
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+/* Estilos para o dropdown de status */
+.dropdown-menu {
+    z-index: 9999;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 10rem;
+    padding: 0.5rem 0;
+    margin: 0.125rem 0 0;
+    font-size: 1rem;
+    color: #212529;
+    text-align: left;
+    list-style: none;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0,0,0,.15);
+    border-radius: 0.25rem;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+    overflow: visible;
+}
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 0.25rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+}
+.dropdown-item:hover {
+    color: #16181b;
+    background-color: #f8f9fa;
+}
+.dropdown-divider {
+    height: 0;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    border-top: 1px solid #e9ecef;
+}
+/* Garante que o dropdown fique visível */
+.dropdown {
+    position: relative;
+}
+.dropdown-menu.show {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0;
+    z-index: 9999;
+}
+/* Ajusta a posição do dropdown para não ficar escondido */
+.table-responsive {
+    overflow: visible;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+
+function filterOrders(status) {
+    const rows = document.querySelectorAll('#ordersTable tbody tr');
+    rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function filterSales(period) {
+    const rows = document.querySelectorAll('#salesTable tbody tr');
+    const now = new Date();
+    const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    
+    rows.forEach(row => {
+        const saleDate = new Date(row.dataset.date);
+        let show = false;
+        
+        switch(period) {
+            case 'all':
+                show = true;
+                break;
+            case 'month':
+                show = saleDate >= oneMonthAgo;
+                break;
+            case 'year':
+                show = saleDate >= oneYearAgo;
+                break;
+        }
+        
+        row.style.display = show ? '' : 'none';
+    });
+}
+
+function toggleAllOrders(checkbox) {
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+function toggleAllSales(checkbox) {
+    const checkboxes = document.querySelectorAll('.sale-checkbox');
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+}
+
+function deleteSelectedOrders() {
+    const selectedOrders = Array.from(document.querySelectorAll('.order-checkbox:checked'))
+        .map(checkbox => checkbox.value);
+    
+    if (selectedOrders.length === 0) {
+        alert('Selecione pelo menos um pedido para excluir.');
+        return;
+    }
+    
+    if (confirm(`Tem certeza que deseja excluir ${selectedOrders.length} pedido(s)?`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ url_for('resellers.delete_orders', id=reseller.id) }}";
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'order_ids';
+        input.value = JSON.stringify(selectedOrders);
+        form.appendChild(input);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function deleteSelectedSales() {
+    const selectedSales = Array.from(document.querySelectorAll('.sale-checkbox:checked'))
+        .map(checkbox => checkbox.value);
+    
+    if (selectedSales.length === 0) {
+        alert('Selecione pelo menos uma venda para excluir.');
+        return;
+    }
+    
+    if (confirm(`Tem certeza que deseja excluir ${selectedSales.length} venda(s)?`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ url_for('resellers.delete_sales', id=reseller.id) }}";
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'sale_ids';
+        input.value = JSON.stringify(selectedSales);
+        form.appendChild(input);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %} 

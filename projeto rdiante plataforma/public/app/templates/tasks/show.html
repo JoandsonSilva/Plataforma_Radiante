@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ task.title }} - Radiante Perfumaria{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">{{ task.title }}</h2>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-dark" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('tasks.edit', id=task.id) }}">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                            </li>
+                            <li>
+                                <form action="{{ url_for('tasks.delete', id=task.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5 class="card-title">Descrição</h5>
+                        <p class="card-text">{{ task.description or 'Nenhuma descrição fornecida' }}</p>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="card-title">Detalhes</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-user"></i> 
+                                    <strong>Responsável:</strong> 
+                                    {{ task.user.username if task.user else 'Não atribuído' }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-calendar"></i> 
+                                    <strong>Data de Vencimento:</strong> 
+                                    {{ task.due_date.strftime('%d/%m/%Y') if task.due_date else 'Sem data' }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-flag"></i> 
+                                    <strong>Prioridade:</strong> 
+                                    <span class="badge bg-{{ 'danger' if task.priority == 'high' else 'warning' if task.priority == 'medium' else 'success' }}">
+                                        {{ task.priority|title }}
+                                    </span>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-tasks"></i> 
+                                    <strong>Status:</strong> 
+                                    <span class="badge bg-{{ 'success' if task.status == 'done' else 'warning' if task.status == 'in_progress' else 'primary' }}">
+                                        {{ task.status|replace('_', ' ')|title }}
+                                    </span>
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-clock"></i> 
+                                    <strong>Criado em:</strong> 
+                                    {{ task.created_at.strftime('%d/%m/%Y %H:%M') if task.created_at else 'Data não disponível' }}
+                                </li>
+                                <li>
+                                    <i class="fas fa-sync"></i> 
+                                    <strong>Última atualização:</strong> 
+                                    {{ task.updated_at.strftime('%d/%m/%Y %H:%M') if task.updated_at else 'Data não disponível' }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('tasks.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </a>
+                        <a href="{{ url_for('tasks.edit', id=task.id) }}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Radiante Perfumaria{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            {% if product.image_url %}
+                <img src="{{ product.image_url }}" 
+                     class="img-fluid rounded" 
+                     alt="{{ product.name }}"
+                     style="max-height: 500px; object-fit: cover;">
+            {% else %}
+                <img src="{{ url_for('static', filename='img/' + product.name + '.JPG') }}" 
+                     class="img-fluid rounded" 
+                     alt="{{ product.name }}"
+                     style="max-height: 500px; object-fit: cover;"
+                     onerror="this.src='{{ url_for('static', filename='img/default.jpg') }}'">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h1>{{ product.name }}</h1>
+            <p class="lead">R$ {{ "%.2f"|format(product.price) }}</p>
+            
+            <div class="mb-4">
+                <h5>Descrição</h5>
+                <p>{{ product.description }}</p>
+            </div>
+
+            <div class="mb-4">
+                <h5>Informações do Produto</h5>
+                <ul class="list-unstyled">
+                    <li><strong>Estoque:</strong> {{ product.stock }} unidades</li>
+                    <li><strong>Status:</strong> 
+                        <span class="badge {% if product.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ product.status }}
+                        </span>
+                    </li>
+                    <li><strong>Data de Criação:</strong> {{ product.created_at.strftime('%d/%m/%Y') }}</li>
+                </ul>
+            </div>
+
+            <div class="btn-group">
+                <a href="{{ url_for('products.edit', id=product.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a href="{{ url_for('products.delete', id=product.id) }}" 
+                   class="btn btn-danger"
+                   onclick="return confirm('Tem certeza que deseja excluir este produto?')">
+                    <i class="fas fa-trash"></i> Excluir
+                </a>
+                <a href="{{ url_for('products.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
