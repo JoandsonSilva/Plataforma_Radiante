@@ -1,18 +1,24 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import TasksPage from './pages/TasksPage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 import RevendedoresPage from './pages/RevendedoresPage';
-import AuthPage from './pages/AuthPage';
 import ProductsPage from './pages/ProductsPage';
+import TasksPage from './pages/TasksPage';
+import './assets/css/style.css';
+
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/tasks" element={<TasksPage />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/revendedores" element={<RevendedoresPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/produtos" element={<ProductsPage />} />
+        <Route path="/tarefas" element={<TasksPage />} />
       </Routes>
     </Router>
   );
