@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Revendedores - Radiante Perfumaria{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Gestão de Revendedores</h1>
+        <a href="{{ url_for('resellers.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Novo Revendedor
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reseller in resellers %}
+                        <tr>
+                            <td>{{ reseller.name }}</td>
+                            <td>{{ reseller.email }}</td>
+                            <td>{{ reseller.phone }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'success' if reseller.is_active else 'danger' }}">
+                                    {{ 'Ativo' if reseller.is_active else 'Inativo' }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('resellers.edit', id=reseller.id) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('resellers.show', id=reseller.id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <form action="{{ url_for('resellers.delete', id=reseller.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir este revendedor?')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

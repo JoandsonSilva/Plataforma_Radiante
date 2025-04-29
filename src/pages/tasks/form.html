@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if task else 'Criar' }} Tarefa - Radiante Perfumaria{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">{{ 'Editar' if task else 'Criar' }} Tarefa</h1>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('tasks.create') if not task else url_for('tasks.edit', id=task.id) }}">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Título</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ task.title if task else '' }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required>{{ task.description if task else '' }}</textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="assignee_id" class="form-label">Responsável</label>
+                                    <select class="form-select" id="assignee_id" name="assignee_id" required>
+                                        <option value="">Selecione um responsável</option>
+                                        {% for user in users %}
+                                        <option value="{{ user.id }}" {% if task and task.assignee_id == user.id %}selected{% endif %}>
+                                            {{ user.username }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="due_date" class="form-label">Data de Vencimento</label>
+                                    <input type="date" class="form-control" id="due_date" name="due_date" 
+                                           value="{{ task.due_date.strftime('%Y-%m-%d') if task else '' }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="priority" class="form-label">Prioridade</label>
+                                    <select class="form-select" id="priority" name="priority" required>
+                                        <option value="low" {% if task and task.priority == 'low' %}selected{% endif %}>Baixa</option>
+                                        <option value="medium" {% if task and task.priority == 'medium' %}selected{% endif %}>Média</option>
+                                        <option value="high" {% if task and task.priority == 'high' %}selected{% endif %}>Alta</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status" name="status" required>
+                                        <option value="todo" {% if task and task.status == 'todo' %}selected{% endif %}>A Fazer</option>
+                                        <option value="in_progress" {% if task and task.status == 'in_progress' %}selected{% endif %}>Em Andamento</option>
+                                        <option value="done" {% if task and task.status == 'done' %}selected{% endif %}>Concluído</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('tasks.index') }}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
