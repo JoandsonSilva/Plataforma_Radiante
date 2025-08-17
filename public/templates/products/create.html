@@ -1,68 +1,124 @@
-{% extends "base.html" %}
-
-{% block title %}Novo Produto - Radiante Perfumaria{% endblock %}
-
-{% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-header">
-                    <h2 class="mb-0">Novo Produto</h2>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Produto - Plataforma Radiante</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="../../static/img/logo.png" alt="Plataforma Radiante">
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="../dashboard/index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="../products/index.html" class="active"><i class="fas fa-box"></i> Produtos</a></li>
+                    <li><a href="../resellers/index.html"><i class="fas fa-users"></i> Revendedores</a></li>
+                    <li><a href="../orders/index.html"><i class="fas fa-shopping-cart"></i> Pedidos</a></li>
+                    <li><a href="../tasks/index.html"><i class="fas fa-tasks"></i> Tarefas</a></li>
+                    <li><a href="../settings/index.html"><i class="fas fa-cog"></i> Configurações</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Adicionar Produto</h1>
+                    <div class="user-info">
+                        <span id="userEmail"></span>
+                        <button id="logoutBtn" class="btn-logout">Sair</button>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Nome do Produto</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+            </header>
+
+            <div class="content">
+                <div class="card">
+                    <form id="productForm">
+                        <div class="form-group">
+                            <label for="name">Nome do Produto</label>
+                            <select id="name" name="name" required>
+                                <option value="">Selecione um produto</option>
+                                <optgroup label="Feminino">
+                                    <option value="radiante_lady">Radiante Lady</option>
+                                    <option value="radiante_deusa">Radiante Deusa</option>
+                                    <option value="radiante_charm">Radiante Charm</option>
+                                </optgroup>
+                                <optgroup label="Masculino">
+                                    <option value="radiante_million">Radiante Million</option>
+                                    <option value="radiante_midnight">Radiante Midnight</option>
+                                    <option value="radiante_confident">Radiante Confident</option>
+                                </optgroup>
+                                <optgroup label="Infantil">
+                                    <option value="radiante_steves">Radiante Steve's</option>
+                                </optgroup>
+                            </select>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Descrição</label>
-                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+
+                        <div class="form-group">
+                            <label for="description">Descrição</label>
+                            <textarea id="description" name="description" required></textarea>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="price" class="form-label">Preço</label>
-                                    <input type="number" class="form-control" id="price" name="price" step="0.01" required>
-                                </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="price">Preço</label>
+                                <input type="number" id="price" name="price" step="0.01" min="0" required>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="stock" class="form-label">Estoque</label>
-                                    <input type="number" class="form-control" id="stock" name="stock" required>
-                                </div>
+
+                            <div class="form-group">
+                                <label for="category">Categoria</label>
+                                <select id="category" name="category" required>
+                                    <option value="">Selecione uma categoria</option>
+                                    <option value="feminino">Feminino</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="infantil">Infantil</option>
+                                </select>
                             </div>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="category" class="form-label">Categoria</label>
-                                    <input type="text" class="form-control" id="category" name="category">
-                                </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="size">Tamanho</label>
+                                <select id="size" name="size" required>
+                                    <option value="">Selecione um tamanho</option>
+                                    <option value="10ml">10ml</option>
+                                    <option value="25ml">25ml</option>
+                                    <option value="50ml">50ml</option>
+                                    <option value="100ml">100ml</option>
+                                </select>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="brand" class="form-label">Marca</label>
-                                    <input type="text" class="form-control" id="brand" name="brand">
-                                </div>
+
+                            <div class="form-group">
+                                <label for="type">Tipo</label>
+                                <select id="type" name="type" required>
+                                    <option value="">Selecione um tipo</option>
+                                    <option value="normal">Normal</option>
+                                    <option value="bolsa">Perfume de Bolsa</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="quantity">Quantidade em Estoque</label>
+                                <input type="number" id="quantity" name="quantity" min="1" value="1" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="photo">Foto do Produto</label>
+                                <input type="file" id="photo" name="photo" accept="image/*">
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="image" class="form-label">Imagem do Produto</label>
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                        </div>
-                        
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('products.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Voltar
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Salvar
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="window.location.href='index.html'">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Salvar Produto
                             </button>
                         </div>
                     </form>
@@ -70,5 +126,135 @@
             </div>
         </div>
     </div>
-</div>
-{% endblock %} 
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3b8HR1Gcmfp4YMh7Ibj7a-X7sGYd_6uk",
+            authDomain: "plataforma-radiante.firebaseapp.com",
+            projectId: "plataforma-radiante",
+            storageBucket: "plataforma-radiante.appspot.com",
+            messagingSenderId: "990096383941",
+            appId: "1:990096383941:web:46541971f9a5e86ead75ac",
+            measurementId: "G-VZZZYRQZFP"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Verificar autenticação
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userEmail').textContent = user.email;
+            } else {
+                window.location.href = '../../index.html';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                window.location.href = '../../index.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao fazer logout. Por favor, tente novamente.');
+            }
+        });
+
+        // Atualizar categoria baseado no nome do produto
+        document.getElementById('name').addEventListener('change', function() {
+            const name = this.value;
+            const categorySelect = document.getElementById('category');
+            
+            if (name.includes('lady') || name.includes('deusa') || name.includes('charm')) {
+                categorySelect.value = 'feminino';
+            } else if (name.includes('million') || name.includes('midnight') || name.includes('confident')) {
+                categorySelect.value = 'masculino';
+            } else if (name.includes('steves')) {
+                categorySelect.value = 'infantil';
+            }
+        });
+
+        // Manipular envio do formulário
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                const name = document.getElementById('name').value;
+                const description = document.getElementById('description').value;
+                const price = parseFloat(document.getElementById('price').value);
+                const category = document.getElementById('category').value;
+                const size = document.getElementById('size').value;
+                const type = document.getElementById('type').value;
+                const newQuantity = parseInt(document.getElementById('quantity').value);
+                const photoFile = document.getElementById('photo').files[0];
+                
+                let photoUrl = '';
+                if (photoFile) {
+                    const storageRef = storage.ref();
+                    const photoRef = storageRef.child(`products/${Date.now()}_${photoFile.name}`);
+                    const uploadTask = await photoRef.put(photoFile);
+                    photoUrl = await uploadTask.ref.getDownloadURL();
+                }
+
+                // Verificar se já existe um produto com o mesmo nome
+                const existingProducts = await db.collection('products')
+                    .where('name', '==', name)
+                    .where('size', '==', size)
+                    .where('type', '==', type)
+                    .get();
+
+                if (!existingProducts.empty) {
+                    // Produto já existe, atualizar quantidade
+                    const existingProduct = existingProducts.docs[0];
+                    const currentData = existingProduct.data();
+                    const currentQuantity = currentData.quantity || 0;
+                    
+                    await existingProduct.ref.update({
+                        quantity: currentQuantity + newQuantity,
+                        updatedAt: new Date(),
+                        priceHistory: firebase.firestore.FieldValue.arrayUnion({
+                            price: price,
+                            date: new Date()
+                        })
+                    });
+
+                    alert('Quantidade do produto atualizada com sucesso!');
+                } else {
+                    // Produto não existe, criar novo
+                    const productData = {
+                        name,
+                        description,
+                        category,
+                        size,
+                        type,
+                        photoUrl,
+                        quantity: newQuantity,
+                        priceHistory: [{
+                            price: price,
+                            date: new Date()
+                        }],
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    };
+
+                    await db.collection('products').add(productData);
+                    alert('Produto salvo com sucesso!');
+                }
+                
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Erro ao salvar produto:', error);
+                alert('Erro ao salvar produto: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html> 

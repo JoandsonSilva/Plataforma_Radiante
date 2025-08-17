@@ -1,83 +1,296 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Produto - Plataforma Radiante</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="../../static/img/logo.png" alt="Plataforma Radiante">
+            </div>
+            <div class="user-info">
+                <span id="userEmail"></span>
+                <button id="logoutBtn" class="btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </div>
 
-{% block title %}Editar Produto - Radiante Perfumaria{% endblock %}
+        <div class="content">
+            <div class="page-header">
+                <h1>Editar Produto</h1>
+                <a href="index.html" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
 
-{% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
             <div class="card">
-                <div class="card-header">
-                    <h2 class="mb-0">Editar Produto</h2>
-                </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Nome do Produto</label>
-                            <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+                <form id="productForm">
+                    <div class="form-group">
+                        <label for="name">Nome do Produto</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Descrição</label>
+                        <textarea id="description" name="description" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="price">Preço</label>
+                            <input type="number" id="price" name="price" step="0.01" required>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Descrição</label>
-                            <textarea class="form-control" id="description" name="description" rows="3">{{ product.description }}</textarea>
+
+                        <div class="form-group">
+                            <label for="category">Categoria</label>
+                            <select id="category" name="category" required>
+                                <option value="">Selecione uma categoria</option>
+                                <option value="perfume">Perfume</option>
+                                <option value="colonia">Colônia</option>
+                                <option value="deodorante">Desodorante</option>
+                                <option value="outros">Outros</option>
+                            </select>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="price" class="form-label">Preço</label>
-                                    <input type="number" class="form-control" id="price" name="price" step="0.01" value="{{ product.price }}" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="stock" class="form-label">Estoque</label>
-                                    <input type="number" class="form-control" id="stock" name="stock" value="{{ product.stock }}" required>
-                                </div>
-                            </div>
+
+                        <div class="form-group">
+                            <label for="size">Tamanho (ml)</label>
+                            <input type="number" id="size" name="size" required>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="category" class="form-label">Categoria</label>
-                                    <input type="text" class="form-control" id="category" name="category" value="{{ product.category }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="brand" class="form-label">Marca</label>
-                                    <input type="text" class="form-control" id="brand" name="brand" value="{{ product.brand }}">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="image" class="form-label">Imagem do Produto</label>
-                            {% if product.image %}
-                            <div class="mb-2">
-                                <img src="{{ url_for('static', filename='uploads/' + product.image) }}" 
-                                     alt="{{ product.name }}" 
-                                     class="img-thumbnail" 
-                                     style="max-height: 200px;">
-                            </div>
-                            {% endif %}
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                            <small class="text-muted">Deixe em branco para manter a imagem atual</small>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('products.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Voltar
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Salvar
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photo">Foto do Produto</label>
+                        <input type="file" id="photo" name="photo" accept="image/*">
+                        <div id="currentPhoto" class="current-photo"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar Alterações
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
-{% endblock %} 
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <!-- Firebase Auth -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <!-- Firebase Storage -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx",
+            authDomain: "plataforma-radiante.firebaseapp.com",
+            projectId: "plataforma-radiante",
+            storageBucket: "plataforma-radiante.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:1234567890123456789012"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Referências
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Verificar autenticação
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userEmail').textContent = user.email;
+                console.log('Usuário autenticado:', user.email);
+                
+                // Verificar se o usuário tem permissão
+                db.collection('users').doc(user.uid).get().then((doc) => {
+                    if (doc.exists) {
+                        console.log('Usuário tem permissão');
+                        loadProduct();
+                    } else {
+                        console.error('Usuário não tem permissão');
+                        alert('Você não tem permissão para acessar esta página.');
+                        window.location.href = 'index.html';
+                    }
+                }).catch((error) => {
+                    console.error('Erro ao verificar permissão:', error);
+                    alert('Erro ao verificar permissões. Por favor, tente novamente.');
+                });
+            } else {
+                console.log('Usuário não autenticado');
+                alert('Por favor, faça login para continuar.');
+                window.location.href = '../../index.html';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja sair? As alterações não salvas serão perdidas.')) {
+                auth.signOut().then(() => {
+                    window.location.href = '../../index.html';
+                }).catch((error) => {
+                    console.error('Erro ao fazer logout:', error);
+                    alert('Erro ao fazer logout. Por favor, tente novamente.');
+                });
+            }
+        });
+
+        // Carregar dados do produto
+        async function loadProduct() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+                
+                if (!productId) {
+                    throw new Error('ID do produto não fornecido');
+                }
+
+                const doc = await db.collection('products').doc(productId).get();
+                
+                if (!doc.exists) {
+                    throw new Error('Produto não encontrado');
+                }
+
+                const product = doc.data();
+                
+                // Preencher formulário
+                document.getElementById('name').value = product.name || '';
+                document.getElementById('description').value = product.description || '';
+                document.getElementById('price').value = product.price || '';
+                document.getElementById('category').value = product.category || '';
+                document.getElementById('size').value = product.size || '';
+
+                // Mostrar foto atual
+                if (product.photoUrl) {
+                    const currentPhoto = document.getElementById('currentPhoto');
+                    currentPhoto.innerHTML = `
+                        <img src="${product.photoUrl}" alt="Foto atual do produto" style="max-width: 200px; margin-top: 10px;">
+                    `;
+                }
+
+            } catch (error) {
+                console.error('Erro ao carregar produto:', error);
+                alert('Erro ao carregar produto: ' + error.message);
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Manipular envio do formulário
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id');
+                
+                if (!productId) {
+                    throw new Error('ID do produto não fornecido');
+                }
+
+                // Obter valores do formulário
+                const name = document.getElementById('name').value;
+                const description = document.getElementById('description').value;
+                const price = document.getElementById('price').value;
+                const category = document.getElementById('category').value;
+                const size = document.getElementById('size').value;
+                const photoFile = document.getElementById('photo').files[0];
+
+                // Upload da foto se existir
+                let photoUrl = null;
+                if (photoFile) {
+                    try {
+                        // Criar uma referência única para o arquivo
+                        const timestamp = Date.now();
+                        const fileName = `${timestamp}_${photoFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                        const storageRef = storage.ref();
+                        const fileRef = storageRef.child(`products/${fileName}`);
+
+                        // Upload básico do arquivo
+                        const uploadTask = fileRef.put(photoFile);
+
+                        // Monitorar o progresso
+                        uploadTask.on('state_changed',
+                            (snapshot) => {
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                console.log('Upload progress: ' + progress + '%');
+                            },
+                            (error) => {
+                                console.error('Erro no upload:', error);
+                                throw error;
+                            },
+                            async () => {
+                                try {
+                                    // Upload concluído com sucesso
+                                    photoUrl = await uploadTask.snapshot.ref.getDownloadURL();
+                                    console.log('URL da foto:', photoUrl);
+                                } catch (error) {
+                                    console.error('Erro ao obter URL:', error);
+                                    throw error;
+                                }
+                            }
+                        );
+
+                        // Aguardar o upload terminar
+                        await new Promise((resolve, reject) => {
+                            uploadTask.on('state_changed',
+                                null,
+                                (error) => {
+                                    console.error('Erro no upload:', error);
+                                    reject(error);
+                                },
+                                () => {
+                                    console.log('Upload concluído com sucesso');
+                                    resolve();
+                                }
+                            );
+                        });
+
+                    } catch (uploadError) {
+                        console.error('Erro no upload da foto:', uploadError);
+                        alert('Erro ao fazer upload da foto. O produto será atualizado sem alterar a foto.');
+                    }
+                }
+
+                // Atualizar o produto no Firestore
+                const productRef = db.collection('products').doc(productId);
+                const updateData = {
+                    name: name,
+                    description: description,
+                    price: parseFloat(price),
+                    category: category,
+                    size: parseInt(size),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedBy: auth.currentUser.uid,
+                    updatedByEmail: auth.currentUser.email
+                };
+
+                // Adicionar photoUrl apenas se uma nova foto foi enviada
+                if (photoUrl) {
+                    updateData.photoUrl = photoUrl;
+                }
+
+                await productRef.update(updateData);
+                console.log('Produto atualizado com sucesso!');
+                alert('Produto atualizado com sucesso!');
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Erro ao atualizar produto:', error);
+                alert('Erro ao atualizar produto: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html> 

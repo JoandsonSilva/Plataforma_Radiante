@@ -1,85 +1,277 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Produtos - Radiante Perfumaria</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos - Radiante Perfumaria</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/templates/index.html">Radiante</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="/templates/index.html">Início</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/main/dashboard.html">Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/products/index.html">Produtos</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/resellers/index.html">Revendedores</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/tasks/index.html">Tarefas</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/auth/login.html">Login</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/auth/register.html">Cadastro</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="../../static/img/logo.png" alt="Plataforma Radiante">
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="http://127.0.0.1:5500/Plataforma_Radiante/public/templates/dashboard/index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="index.html" class="active"><i class="fas fa-box"></i> Produtos</a></li>
+                    <li><a href="../resellers/index.html"><i class="fas fa-users"></i> Revendedores</a></li>
+                    <li><a href="../orders/index.html"><i class="fas fa-shopping-cart"></i> Pedidos</a></li>
+                    <li><a href="../tasks/index.html"><i class="fas fa-tasks"></i> Tarefas</a></li>
+                    <li><a href="../settings/index.html"><i class="fas fa-cog"></i> Configurações</a></li>
+                </ul>
+            </nav>
+        </div>
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Produtos</h1>
-        <a href="{{ url_for('products.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Novo Produto
-        </a>
-    </div>
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Produtos</h1>
+                    <div class="user-info">
+                        <span id="userEmail"></span>
+                        <button id="logoutBtn" class="btn-logout">Sair</button>
+                    </div>
+                </div>
+            </header>
 
-    <div class="row">
-        {% for product in products %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                {% if product.image_url %}
-                    <img src="{{ product.image_url }}" 
-                         class="card-img-top" 
-                         alt="{{ product.name }}"
-                         style="height: 200px; object-fit: cover;">
-                {% else %}
-                    <img src="{{ url_for('static', filename='img/default.jpg') }}" 
-                         class="card-img-top" 
-                         alt="{{ product.name }}"
-                         style="height: 200px; object-fit: cover;">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ product.name }}</h5>
-                    <p class="card-text">
-                        <strong>Preço:</strong> R$ {{ "%.2f"|format(product.price) }}<br>
-                        <strong>Estoque:</strong> {{ product.stock }} unidades<br>
-                        <strong>Status:</strong> 
-                        <span class="badge {% if product.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
-                            {{ product.status|title }}
-                        </span>
-                    </p>
-                    <div class="btn-group">
-                        <a href="{{ url_for('products.edit', id=product.id) }}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-edit"></i> Editar
-                        </a>
-                        <a href="{{ url_for('products.show', id=product.id) }}" class="btn btn-sm btn-outline-info">
-                            <i class="fas fa-eye"></i> Ver
-                        </a>
-                        <form action="{{ url_for('products.delete', id=product.id) }}" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir este produto?')">
-                                <i class="fas fa-trash"></i> Excluir
-                            </button>
-                        </form>
+            <div class="content">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Lista de Produtos</h5>
+                        <button class="btn btn-primary" onclick="window.location.href='create.html'">
+                            <i class="fas fa-plus"></i> Novo Produto
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="products-container">
+                            <!-- Produtos Femininos -->
+                            <div class="product-category">
+                                <h3>Feminino</h3>
+                                <div class="products-grid" id="feminino-products">
+                                    <!-- Produtos serão inseridos aqui via JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Produtos Masculinos -->
+                            <div class="product-category">
+                                <h3>Masculino</h3>
+                                <div class="products-grid" id="masculino-products">
+                                    <!-- Produtos serão inseridos aqui via JavaScript -->
+                                </div>
+                            </div>
+
+                            <!-- Produtos Infantis -->
+                            <div class="product-category">
+                                <h3>Infantil</h3>
+                                <div class="products-grid" id="infantil-products">
+                                    <!-- Produtos serão inseridos aqui via JavaScript -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        {% endfor %}
     </div>
-</div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3b8HR1Gcmfp4YMh7Ibj7a-X7sGYd_6uk",
+            authDomain: "plataforma-radiante.firebaseapp.com",
+            projectId: "plataforma-radiante",
+            storageBucket: "plataforma-radiante.appspot.com",
+            messagingSenderId: "990096383941",
+            appId: "1:990096383941:web:46541971f9a5e86ead75ac",
+            measurementId: "G-VZZZYRQZFP"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Verificar autenticação
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userEmail').textContent = user.email;
+                loadProducts();
+            } else {
+                window.location.href = '../../index.html';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                window.location.href = '../../index.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao fazer logout. Por favor, tente novamente.');
+            }
+        });
+
+        // Função para formatar a data
+        function formatDate(date) {
+            if (!date) return 'Data não disponível';
+            
+            // Se for um Timestamp do Firestore
+            if (date.toDate) {
+                date = date.toDate();
+            }
+            
+            const options = { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return new Date(date).toLocaleDateString('pt-BR', options);
+        }
+
+        // Função para renderizar os produtos
+        function renderProducts(products) {
+            // Limpar containers
+            document.getElementById('feminino-products').innerHTML = '';
+            document.getElementById('masculino-products').innerHTML = '';
+            document.getElementById('infantil-products').innerHTML = '';
+
+            // Agrupar produtos por categoria e nome
+            const groupedProducts = {
+                feminino: {},
+                masculino: {},
+                infantil: {}
+            };
+
+            // Agrupar produtos
+            products.forEach(product => {
+                if (groupedProducts[product.category]) {
+                    const productName = product.name.replace(/-/g, ' ').trim(); // Remove hífens e espaços extras
+                    
+                    if (!groupedProducts[product.category][productName]) {
+                        groupedProducts[product.category][productName] = {
+                            ...product,
+                            priceHistory: [...product.priceHistory],
+                            totalQuantity: 1
+                        };
+                    } else {
+                        // Mesclar histórico de preços
+                        groupedProducts[product.category][productName].priceHistory = [
+                            ...groupedProducts[product.category][productName].priceHistory,
+                            ...product.priceHistory
+                        ];
+                        groupedProducts[product.category][productName].totalQuantity++;
+                    }
+                }
+            });
+
+            // Renderizar cada categoria
+            Object.entries(groupedProducts).forEach(([category, categoryProducts]) => {
+                const container = document.getElementById(`${category}-products`);
+                
+                Object.values(categoryProducts).forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+                    
+                    // Ordenar histórico por data (mais recente primeiro)
+                    const sortedHistory = [...product.priceHistory].sort((a, b) => b.date.toDate() - a.date.toDate());
+                    const latestPrice = sortedHistory[0];
+
+                    productCard.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.photoUrl || '../../static/img/no-image.png'}" alt="${product.name}">
+                        </div>
+                        <div class="product-info">
+                            <h4>${product.name}</h4>
+                            <p class="product-description">${product.description}</p>
+                            <div class="product-details">
+                                <span class="product-size">${product.size}</span>
+                                <span class="product-type">${product.type}</span>
+                                <span class="product-quantity">Estoque: ${product.quantity || 0}</span>
+                            </div>
+                            <div class="product-price">
+                                <span class="current-price">R$ ${latestPrice.price.toFixed(2)}</span>
+                                <span class="price-date">Atualizado em: ${formatDate(latestPrice.date)}</span>
+                            </div>
+                            <div class="price-history">
+                                <h5>Histórico de Preços</h5>
+                                <ul>
+                                    ${sortedHistory.map(price => `
+                                        <li>
+                                            <span class="price">R$ ${price.price.toFixed(2)}</span>
+                                            <span class="date">${formatDate(price.date)}</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                            <div class="product-actions">
+                                <button class="btn btn-primary" onclick="editProduct('${product.id}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">
+                                    <i class="fas fa-trash"></i> Excluir
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(productCard);
+                });
+            });
+        }
+
+        // Carregar produtos
+        async function loadProducts() {
+            try {
+                const productsSnapshot = await db.collection('products').get();
+                const products = [];
+                
+                productsSnapshot.forEach(doc => {
+                    const product = doc.data();
+                    // Garantir que o produto tenha um histórico de preços
+                    if (!product.priceHistory) {
+                        product.priceHistory = [{
+                            price: product.price || 0,
+                            date: product.createdAt || new Date()
+                        }];
+                    }
+                    products.push({
+                        id: doc.id,
+                        ...product
+                    });
+                });
+
+                renderProducts(products);
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                alert('Erro ao carregar produtos: ' + error.message);
+            }
+        }
+
+        // Deletar produto
+        async function deleteProduct(id) {
+            if (!confirm('Tem certeza que deseja excluir este produto?')) {
+                return;
+            }
+
+            try {
+                await db.collection('products').doc(id).delete();
+                alert('Produto excluído com sucesso!');
+                loadProducts();
+            } catch (error) {
+                console.error('Erro ao excluir produto:', error);
+                alert('Erro ao excluir produto. Por favor, tente novamente.');
+            }
+        }
+
+        // Carregar produtos ao iniciar
+        loadProducts();
+    </script>
 </body>
 </html> 

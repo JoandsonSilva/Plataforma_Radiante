@@ -1,190 +1,211 @@
-{% extends "base.html" %}
-
-{% block title %}Login - Radiante Perfumaria{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Radiante Perfumaria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/templates/index.html">Radiante</a>
+    <a class="navbar-brand" href="../index.html">Radiante</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="/templates/index.html">Início</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/main/dashboard.html">Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/products/index.html">Produtos</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/resellers/index.html">Revendedores</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/tasks/index.html">Tarefas</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/auth/login.html">Login</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/auth/register.html">Cadastro</a></li>
+        <li class="nav-item"><a class="nav-link" href="../index.html">Início</a></li>
+        <li class="nav-item"><a class="nav-link" href="../main/dashboard.html">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="../products/index.html">Produtos</a></li>
+        <li class="nav-item"><a class="nav-link" href="../resellers/index.html">Revendedores</a></li>
+        <li class="nav-item"><a class="nav-link" href="../tasks/index.html">Tarefas</a></li>
+        <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="register.html">Cadastro</a></li>
       </ul>
     </div>
   </div>
 </nav>
 
 <div class="container">
-    <div class="row justify-content-center">
+    <div class="row justify-content-center mt-5">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Login</h2>
-                    
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                <div class="alert alert-{{ category }}">{{ message }}</div>
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    
-                    <form method="POST" action="{{ url_for('auth.login') }}">
+                    <h2 class="text-center mb-4">Login</h2>
+                    <div id="errorMessage" class="alert alert-danger d-none"></div>
+                    <form id="loginForm">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input type="email" class="form-control" id="email" required>
                         </div>
-                        
                         <div class="mb-3">
                             <label for="password" class="form-label">Senha</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" required>
                         </div>
-                        
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                            <label class="form-check-label" for="remember">Lembrar-me</label>
-                        </div>
-                        
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Entrar</button>
+                            <button type="submit" class="btn btn-primary" id="loginButton">
+                                <i class="fas fa-sign-in-alt"></i> Entrar
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" id="googleButton" onclick="signInWithGoogle()">
+                                <i class="fab fa-google"></i> Entrar com Google
+                            </button>
                         </div>
                     </form>
-                    
                     <div class="text-center mt-3">
-                        <p>Ou</p>
-                        <button id="google-login" class="btn btn-outline-danger">
-                            <i class="fab fa-google"></i> Entrar com Google
-                        </button>
-                        <div id="loading-spinner" class="mt-3" style="display: none;">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Carregando...</span>
-                            </div>
-                            <p class="mt-2">Aguardando autenticação...</p>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center mt-3">
-                        <p>Não tem uma conta? <a href="{{ url_for('auth.register') }}">Registre-se</a></p>
+                        <a href="register.html">Não tem uma conta? Cadastre-se</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+<!-- Firebase App (core) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
 <script>
+    // Configuração do Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyB3b8HR1Gcmfp4YMh7Ibj7a-X7sGYd_6uk",
         authDomain: "plataforma-radiante.firebaseapp.com",
         projectId: "plataforma-radiante",
         storageBucket: "plataforma-radiante.firebasestorage.app",
         messagingSenderId: "990096383941",
-        appId: "1:990096383941:web:46541971f9a5e86ead75ac",
-        measurementId: "G-VZZZYRQZFP"
+        appId: "1:990096383941:web:3ab3b9cb6498f9bcad75ac",
+        measurementId: "G-6V9MMG706W"
     };
 
-    // Inicializar Firebase
+    // Inicializa o Firebase
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    // Configurar provedor do Google
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({
-        prompt: 'select_account'
-    });
+    // Função para mostrar mensagem de erro
+    function showError(message) {
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('d-none');
+    }
 
-    // Configurar persistência da sessão
-    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-        .catch((error) => {
-            console.error("Erro ao configurar persistência:", error);
-        });
+    // Função para mostrar loading
+    function showLoading(button) {
+        const originalContent = button.innerHTML;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Carregando...';
+        button.disabled = true;
+        return originalContent;
+    }
 
-    // Verificar estado de autenticação
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            // Usuário já está autenticado no Firebase
-            user.getIdToken().then((token) => {
-                // Enviar token para o backend
-                fetch('/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ token: token })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = data.redirect;
-                    } else {
-                        alert('Erro ao fazer login: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao fazer login. Tente novamente.');
-                });
-            });
+    // Função para restaurar botão
+    function restoreButton(button, originalContent) {
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    }
+
+    // Função para login com email/senha
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const loginButton = document.getElementById('loginButton');
+        const originalContent = showLoading(loginButton);
+
+        try {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            window.location.href = '../index.html';
+        } catch (error) {
+            console.error('Erro no login:', error);
+            showError('Erro ao fazer login: ' + error.message);
+            restoreButton(loginButton, originalContent);
         }
     });
 
     // Função para login com Google
-    document.getElementById('google-login').addEventListener('click', () => {
-        const loadingSpinner = document.getElementById('loading-spinner');
-        loadingSpinner.style.display = 'block';
+    async function signInWithGoogle() {
+        const googleButton = document.getElementById('googleButton');
+        const originalContent = showLoading(googleButton);
 
-        firebase.auth().signInWithPopup(provider)
-            .then((result) => {
-                loadingSpinner.style.display = 'none';
-                // O token já será enviado pelo onAuthStateChanged
-            })
-            .catch((error) => {
-                loadingSpinner.style.display = 'none';
-                console.error('Erro no login:', error);
-                alert('Erro ao fazer login com Google. Tente novamente.');
-            });
-    });
-
-    // Função para login com email/senha
-    async function loginWithEmail(email, password) {
         try {
-            const rememberMe = document.getElementById('remember').checked;
-            const persistence = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-            
-            await firebase.auth().setPersistence(persistence);
-            const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-            const token = await userCredential.user.getIdToken();
-            
-            // Enviar token para o backend
-            const response = await fetch('/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ token: token })
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({
+                prompt: 'select_account'
             });
             
-            if (response.ok) {
-                window.location.href = '/';
-            } else {
-                const data = await response.json();
-                showMessage(data.error || 'Erro ao fazer login', 'danger');
-            }
+            const result = await auth.signInWithPopup(provider);
+            console.log('Login com Google bem-sucedido:', result.user);
+            window.location.href = '../index.html';
         } catch (error) {
-            showMessage(error.message, 'danger');
+            console.error('Erro no login com Google:', error);
+            showError('Erro ao fazer login com Google: ' + error.message);
+            restoreButton(googleButton, originalContent);
         }
     }
+
+    // Verifica se o usuário já está logado
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            console.log('Usuário já está logado:', user);
+            // Atualizar a interface para mostrar que está logado
+            const loginForm = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const loginButton = document.getElementById('loginButton');
+            const googleButton = document.getElementById('googleButton');
+            
+            // Esconder o formulário de login
+            loginForm.style.display = 'none';
+            
+            // Mostrar mensagem de usuário logado
+            errorMessage.classList.remove('alert-danger');
+            errorMessage.classList.add('alert-success');
+            errorMessage.classList.remove('d-none');
+            errorMessage.textContent = `Você já está logado como ${user.email}`;
+            
+            // Adicionar botão de logout
+            const logoutButton = document.createElement('button');
+            logoutButton.className = 'btn btn-danger mt-3';
+            logoutButton.innerHTML = '<i class="fas fa-sign-out-alt"></i> Fazer Logout';
+            logoutButton.onclick = async () => {
+                try {
+                    await auth.signOut();
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Erro ao fazer logout:', error);
+                    showError('Erro ao fazer logout: ' + error.message);
+                }
+            };
+            
+            // Adicionar botão de continuar
+            const continueButton = document.createElement('button');
+            continueButton.className = 'btn btn-primary mt-3 ms-2';
+            continueButton.innerHTML = '<i class="fas fa-home"></i> Ir para Início';
+            continueButton.onclick = () => {
+                window.location.href = '../index.html';
+            };
+            
+            // Adicionar os botões ao card
+            const cardBody = document.querySelector('.card-body');
+            cardBody.appendChild(logoutButton);
+            cardBody.appendChild(continueButton);
+        }
+    });
+
+    // Adiciona listener para erros de autenticação
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            console.log('Usuário autenticado:', user);
+        } else {
+            console.log('Nenhum usuário autenticado');
+        }
+    }, (error) => {
+        console.error('Erro na autenticação:', error);
+        showError('Erro na autenticação: ' + error.message);
+    });
 </script>
-{% endblock %} 
+</body>
+</html> 

@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Vendas e Investimentos - Radiante Perfumaria</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .summary-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .summary-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .filters .form-group {
+            margin-bottom: 15px;
+        }
+        .table-responsive {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .percentage-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .percentage-revendedor { background-color: #e3f2fd; color: #1976d2; }
+        .percentage-reinvestimento { background-color: #e8f5e9; color: #2e7d32; }
+        .percentage-marketing { background-color: #fff3e0; color: #f57c00; }
+        .percentage-lucro { background-color: #f3e5f5; color: #7b1fa2; }
+        .percentage-reserva { background-color: #e8eaf6; color: #3f51b5; }
+        .percentage-revendedor-guardado { background-color: #fce4ec; color: #c2185b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="../../static/img/logo.png" alt="Plataforma Radiante">
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="http://127.0.0.1:5500/Plataforma_Radiante/public/templates/dashboard/index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="../products/index.html"><i class="fas fa-box"></i> Produtos</a></li>
+                    <li><a href="../resellers/index.html"><i class="fas fa-users"></i> Revendedores</a></li>
+                    <li><a href="../orders/index.html"><i class="fas fa-shopping-cart"></i> Pedidos</a></li>
+                    <li><a href="index.html" class="active"><i class="fas fa-chart-line"></i> Controle de Vendas</a></li>
+                    <li><a href="../tasks/index.html"><i class="fas fa-tasks"></i> Tarefas</a></li>
+                    <li><a href="../settings/index.html"><i class="fas fa-cog"></i> Configurações</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Controle de Vendas e Investimentos</h1>
+                    <div class="user-info">
+                        <span id="userEmail"></span>
+                        <button id="logoutBtn" class="btn-logout">Sair</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- Cards de Resumo -->
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>Total de Vendas</h3>
+                        <div class="value" id="totalSales">R$ 0,00</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Total de Perfumes Vendidos</h3>
+                        <div class="value" id="totalPerfumes">0</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Média de Vendas por Mês</h3>
+                        <div class="value" id="monthlyAverage">R$ 0,00</div>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Total de Revendedores Ativos</h3>
+                        <div class="value" id="activeResellers">0</div>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="filters">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="dateStart">Data Inicial</label>
+                                <input type="date" class="form-control" id="dateStart">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="dateEnd">Data Final</label>
+                                <input type="date" class="form-control" id="dateEnd">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="reseller">Revendedor</label>
+                                <select class="form-control" id="reseller">
+                                    <option value="">Todos</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button class="btn btn-primary btn-block" id="filterBtn">
+                                    <i class="fas fa-filter"></i> Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabela de Vendas -->
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Cliente</th>
+                                <th>Revendedor</th>
+                                <th>Valor Total</th>
+                                <th>Revendedor (15%)</th>
+                                <th>Reinvestimento (48%)</th>
+                                <th>Marketing (20%)</th>
+                                <th>Lucro (10%)</th>
+                                <th>Reserva (10%)</th>
+                                <th>Revendedor Guardado (2%)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody">
+                            <!-- Dados serão inseridos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3b8HR1Gcmfp4YMh7Ibj7a-X7sGYd_6uk",
+            authDomain: "plataforma-radiante.firebaseapp.com",
+            projectId: "plataforma-radiante",
+            storageBucket: "plataforma-radiante.appspot.com",
+            messagingSenderId: "990096383941",
+            appId: "1:990096383941:web:46541971f9a5e86ead75ac",
+            measurementId: "G-VZZZYRQZFP"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Verificar autenticação
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userEmail').textContent = user.email;
+                loadSalesData();
+                loadResellers();
+            } else {
+                window.location.href = '../../index.html';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                window.location.href = '../../index.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao fazer logout. Por favor, tente novamente.');
+            }
+        });
+
+        // Carregar revendedores
+        async function loadResellers() {
+            try {
+                const resellersSnapshot = await db.collection('resellers').get();
+                const resellerSelect = document.getElementById('reseller');
+                
+                resellersSnapshot.forEach(doc => {
+                    const reseller = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = reseller.name;
+                    resellerSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar revendedores:', error);
+            }
+        }
+
+        // Carregar dados de vendas
+        async function loadSalesData() {
+            try {
+                const salesSnapshot = await db.collection('sales').get();
+                const salesTableBody = document.getElementById('salesTableBody');
+                let totalSales = 0;
+                let totalPerfumes = 0;
+
+                salesTableBody.innerHTML = '';
+                salesSnapshot.forEach(doc => {
+                    const sale = doc.data();
+                    const row = document.createElement('tr');
+                    
+                    // Calcular valores
+                    const revendedorValue = sale.total * 0.15;
+                    const reinvestimentoValue = sale.total * 0.48;
+                    const marketingValue = sale.total * 0.20;
+                    const lucroValue = sale.total * 0.10;
+                    const reservaValue = sale.total * 0.10;
+                    const revendedorGuardadoValue = sale.total * 0.02;
+
+                    row.innerHTML = `
+                        <td>${new Date(sale.date).toLocaleDateString()}</td>
+                        <td>${sale.customerName}</td>
+                        <td>${sale.resellerName}</td>
+                        <td>R$ ${sale.total.toFixed(2)}</td>
+                        <td><span class="percentage-badge percentage-revendedor">R$ ${revendedorValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-reinvestimento">R$ ${reinvestimentoValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-marketing">R$ ${marketingValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-lucro">R$ ${lucroValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-reserva">R$ ${reservaValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-revendedor-guardado">R$ ${revendedorGuardadoValue.toFixed(2)}</span></td>
+                    `;
+
+                    salesTableBody.appendChild(row);
+                    totalSales += sale.total;
+                    totalPerfumes += sale.quantity || 1;
+                });
+
+                // Atualizar cards de resumo
+                document.getElementById('totalSales').textContent = `R$ ${totalSales.toFixed(2)}`;
+                document.getElementById('totalPerfumes').textContent = totalPerfumes;
+                
+                // Calcular média mensal
+                const months = new Set(salesSnapshot.docs.map(doc => {
+                    const date = new Date(doc.data().date);
+                    return `${date.getFullYear()}-${date.getMonth() + 1}`;
+                })).size;
+
+                const monthlyAverage = months > 0 ? totalSales / months : 0;
+                document.getElementById('monthlyAverage').textContent = `R$ ${monthlyAverage.toFixed(2)}`;
+
+                // Contar revendedores ativos
+                const activeResellers = new Set(salesSnapshot.docs.map(doc => doc.data().resellerId)).size;
+                document.getElementById('activeResellers').textContent = activeResellers;
+
+            } catch (error) {
+                console.error('Erro ao carregar dados de vendas:', error);
+                alert('Erro ao carregar dados de vendas. Por favor, tente novamente.');
+            }
+        }
+
+        // Filtros
+        document.getElementById('filterBtn').addEventListener('click', async () => {
+            const dateStart = document.getElementById('dateStart').value;
+            const dateEnd = document.getElementById('dateEnd').value;
+            const resellerId = document.getElementById('reseller').value;
+
+            try {
+                let query = db.collection('sales');
+
+                if (dateStart) {
+                    query = query.where('date', '>=', new Date(dateStart));
+                }
+                if (dateEnd) {
+                    query = query.where('date', '<=', new Date(dateEnd));
+                }
+                if (resellerId) {
+                    query = query.where('resellerId', '==', resellerId);
+                }
+
+                const salesSnapshot = await query.get();
+                const salesTableBody = document.getElementById('salesTableBody');
+                let totalSales = 0;
+                let totalPerfumes = 0;
+
+                salesTableBody.innerHTML = '';
+                salesSnapshot.forEach(doc => {
+                    const sale = doc.data();
+                    const row = document.createElement('tr');
+                    
+                    // Calcular valores
+                    const revendedorValue = sale.total * 0.15;
+                    const reinvestimentoValue = sale.total * 0.48;
+                    const marketingValue = sale.total * 0.20;
+                    const lucroValue = sale.total * 0.10;
+                    const reservaValue = sale.total * 0.10;
+                    const revendedorGuardadoValue = sale.total * 0.02;
+
+                    row.innerHTML = `
+                        <td>${new Date(sale.date).toLocaleDateString()}</td>
+                        <td>${sale.customerName}</td>
+                        <td>${sale.resellerName}</td>
+                        <td>R$ ${sale.total.toFixed(2)}</td>
+                        <td><span class="percentage-badge percentage-revendedor">R$ ${revendedorValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-reinvestimento">R$ ${reinvestimentoValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-marketing">R$ ${marketingValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-lucro">R$ ${lucroValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-reserva">R$ ${reservaValue.toFixed(2)}</span></td>
+                        <td><span class="percentage-badge percentage-revendedor-guardado">R$ ${revendedorGuardadoValue.toFixed(2)}</span></td>
+                    `;
+
+                    salesTableBody.appendChild(row);
+                    totalSales += sale.total;
+                    totalPerfumes += sale.quantity || 1;
+                });
+
+                // Atualizar cards de resumo
+                document.getElementById('totalSales').textContent = `R$ ${totalSales.toFixed(2)}`;
+                document.getElementById('totalPerfumes').textContent = totalPerfumes;
+                
+                // Calcular média mensal
+                const months = new Set(salesSnapshot.docs.map(doc => {
+                    const date = new Date(doc.data().date);
+                    return `${date.getFullYear()}-${date.getMonth() + 1}`;
+                })).size;
+
+                const monthlyAverage = months > 0 ? totalSales / months : 0;
+                document.getElementById('monthlyAverage').textContent = `R$ ${monthlyAverage.toFixed(2)}`;
+
+                // Contar revendedores ativos
+                const activeResellers = new Set(salesSnapshot.docs.map(doc => doc.data().resellerId)).size;
+                document.getElementById('activeResellers').textContent = activeResellers;
+
+            } catch (error) {
+                console.error('Erro ao filtrar vendas:', error);
+                alert('Erro ao filtrar vendas. Por favor, tente novamente.');
+            }
+        });
+    </script>
+</body>
+</html> 

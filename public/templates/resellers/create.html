@@ -1,91 +1,186 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Revendedor - Plataforma Radiante</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="../../static/img/logo.png" alt="Plataforma Radiante">
+            </div>
+            <div class="user-info">
+                <span id="userEmail"></span>
+                <button id="logoutBtn" class="btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </div>
 
-{% block title %}Novo Revendedor - Radiante Perfumaria{% endblock %}
+        <div class="content">
+            <div class="page-header">
+                <h1>Novo Revendedor</h1>
+                <a href="index.html" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar
+                </a>
+            </div>
 
-{% block content %}
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Novo Revendedor</h1>
-        <a href="{{ url_for('resellers.index') }}" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left"></i> Voltar
-        </a>
-    </div>
+            <div class="card">
+                <form id="resellerForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Nome</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
 
-    <div class="card">
-        <div class="card-body">
-            <form method="POST" action="{{ url_for('resellers.create') }}" enctype="multipart/form-data">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="name" class="form-label">Nome</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="phone" class="form-label">Telefone</label>
-                        <input type="tel" class="form-control" id="phone" name="phone">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="document" class="form-label">CPF/CNPJ</label>
-                        <input type="text" class="form-control" id="document" name="document" required>
-                    </div>
-                </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Telefone</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
 
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <label for="photo" class="form-label">Foto</label>
-                        <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                        <div class="form-group">
+                            <label for="document">CPF/CNPJ</label>
+                            <input type="text" id="document" name="document" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="photo">Foto</label>
+                        <input type="file" id="photo" name="photo" accept="image/*">
                         <div class="form-text">Formatos aceitos: PNG, JPG, JPEG, GIF</div>
                     </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="address" class="form-label">Endereço</label>
-                        <input type="text" class="form-control" id="address" name="address">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="city" class="form-label">Cidade</label>
-                        <input type="text" class="form-control" id="city" name="city">
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="state" class="form-label">Estado</label>
-                        <input type="text" class="form-control" id="state" name="state" maxlength="2">
-                    </div>
-                </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="address">Endereço</label>
+                            <input type="text" id="address" name="address">
+                        </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="zip_code" class="form-label">CEP</label>
-                        <input type="text" class="form-control" id="zip_code" name="zip_code">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="commission_rate" class="form-label">Taxa de Comissão (%)</label>
-                        <input type="number" class="form-control" id="commission_rate" name="commission_rate" step="0.01" min="0" max="100" required>
-                    </div>
-                </div>
+                        <div class="form-group">
+                            <label for="city">Cidade</label>
+                            <input type="text" id="city" name="city">
+                        </div>
 
-                <div class="mb-3">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
-                        <label class="form-check-label" for="is_active">
-                            Revendedor Ativo
-                        </label>
+                        <div class="form-group">
+                            <label for="state">Estado</label>
+                            <input type="text" id="state" name="state" maxlength="2">
+                        </div>
                     </div>
-                </div>
 
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Salvar
-                    </button>
-                </div>
-            </form>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="zip_code">CEP</label>
+                            <input type="text" id="zip_code" name="zip_code">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="commission_rate">Taxa de Comissão (%)</label>
+                            <input type="number" id="commission_rate" name="commission_rate" step="0.01" min="0" max="100" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="is_active" name="is_active" checked>
+                            <label for="is_active">Revendedor Ativo</label>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-{% endblock %} 
+
+    <script type="module">
+        import { auth, storage } from '../../static/js/firebase-config.js';
+        import { ResellerService } from '../../static/js/services/reseller-service.js';
+        import { signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        // Verificar autenticação
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userEmail').textContent = user.email;
+            } else {
+                window.location.href = '../../index.html';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                window.location.href = '../../index.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao fazer logout. Por favor, tente novamente.');
+            }
+        });
+
+        // Manipular envio do formulário
+        document.getElementById('resellerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            try {
+                // Obter valores do formulário
+                const resellerData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    document: document.getElementById('document').value,
+                    address: document.getElementById('address').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    zip_code: document.getElementById('zip_code').value,
+                    commission_rate: parseFloat(document.getElementById('commission_rate').value),
+                    is_active: document.getElementById('is_active').checked
+                };
+
+                // Upload da foto se existir
+                const photoFile = document.getElementById('photo').files[0];
+                if (photoFile) {
+                    try {
+                        // Criar uma referência única para o arquivo
+                        const timestamp = Date.now();
+                        const fileName = `${timestamp}_${photoFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                        const storageRef = ref(storage, `resellers/${fileName}`);
+
+                        // Upload do arquivo
+                        const snapshot = await uploadBytes(storageRef, photoFile);
+                        const photoUrl = await getDownloadURL(snapshot.ref);
+                        resellerData.photoUrl = photoUrl;
+                    } catch (uploadError) {
+                        console.error('Erro no upload da foto:', uploadError);
+                        alert('Erro ao fazer upload da foto. O revendedor será salvo sem foto.');
+                    }
+                }
+
+                // Criar revendedor
+                await ResellerService.createReseller(resellerData);
+                alert('Revendedor criado com sucesso!');
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Erro ao criar revendedor:', error);
+                alert('Erro ao criar revendedor: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html> 

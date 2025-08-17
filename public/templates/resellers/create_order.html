@@ -1,158 +1,404 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Pedido - Radiante Perfumaria</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="../../static/img/logo.png" alt="Plataforma Radiante">
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="http://127.0.0.1:5500/Plataforma_Radiante/public/templates/dashboard/index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="../products/index.html"><i class="fas fa-box"></i> Produtos</a></li>
+                    <li><a href="../resellers/index.html" class="active"><i class="fas fa-users"></i> Revendedores</a></li>
+                    <li><a href="../orders/index.html"><i class="fas fa-shopping-cart"></i> Pedidos</a></li>
+                    <li><a href="../tasks/index.html"><i class="fas fa-tasks"></i> Tarefas</a></li>
+                    <li><a href="../settings/index.html"><i class="fas fa-cog"></i> Configurações</a></li>
+                </ul>
+            </nav>
+        </div>
 
-{% block title %}Novo Pedido - Radiante Perfumaria{% endblock %}
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Novo Pedido</h1>
+                    <div class="user-info">
+                        <span id="userEmail"></span>
+                        <button id="logoutBtn" class="btn-logout">Sair</button>
+                    </div>
+                </div>
+            </header>
 
-{% block content %}
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Novo Pedido - {{ reseller.name }}</h1>
-        <a href="{{ url_for('resellers.show', id=reseller.id) }}" class="btn btn-outline-dark">
-            <i class="fas fa-arrow-left"></i> Voltar
-        </a>
+            <div class="content">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Informações do Pedido</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="productForm">
+                            <div id="products-container">
+                                <!-- Produto inicial -->
+                                <div class="product-row row mb-3">
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label for="product">Produto</label>
+                                            <select class="form-control product-select" name="product_ids[]" required>
+                                                <option value="">Selecione um produto</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="quantity">Quantidade</label>
+                                            <input type="number" class="form-control quantity-input" name="quantities[]" min="1" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="total">Valor Total</label>
+                                            <input type="text" class="form-control total-price" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
+                                        <button type="button" class="btn btn-danger remove-product" style="display: none;">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="button" class="btn btn-secondary" id="add-product">
+                                    <i class="fas fa-plus"></i> Adicionar Produto
+                                </button>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="total_order">Valor Total do Pedido</label>
+                                        <input type="text" class="form-control" id="total_order" name="total_price" readonly>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="status">Status</label>
+                                        <select class="form-control" id="status" name="status" required>
+                                            <option value="pending">Pendente</option>
+                                            <option value="approved">Aprovado</option>
+                                            <option value="delivered">Entregue</option>
+                                            <option value="cancelled">Cancelado</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="window.location.href='index.html'">
+                                    <i class="fas fa-arrow-left"></i> Voltar
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Salvar Pedido
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-gradient-dark text-white">
-            <h5 class="card-title mb-0">Informações do Pedido</h5>
-        </div>
-        <div class="card-body">
-            <form method="POST" action="{{ url_for('resellers.create_order', id=reseller.id) }}">
-                <div id="products-container">
-                    <!-- Produto inicial -->
-                    <div class="product-row row mb-3">
-                        <div class="col-md-5">
-                            <label class="form-label">Produto</label>
-                            <select class="form-select product-select" name="product_ids[]" required>
-                                <option value="">Selecione um produto</option>
-                                {% for product in products %}
-                                <option value="{{ product.id }}" data-price="{{ product.price }}">
-                                    {{ product.name }} - R$ {{ "%.2f"|format(product.price) }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Quantidade</label>
-                            <input type="number" class="form-control quantity-input" name="quantities[]" min="1" required>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Valor Total</label>
-                            <input type="text" class="form-control total-price" readonly>
-                        </div>
-                        <div class="col-md-1 d-flex align-items-end">
-                            <button type="button" class="btn btn-danger remove-product" style="display: none;">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3b8HR1Gcmfp4YMh7Ibj7a-X7sGYd_6uk",
+            authDomain: "plataforma-radiante.firebaseapp.com",
+            projectId: "plataforma-radiante",
+            storageBucket: "plataforma-radiante.appspot.com",
+            messagingSenderId: "990096383941",
+            appId: "1:990096383941:web:46541971f9a5e86ead75ac",
+            measurementId: "G-VZZZYRQZFP"
+        };
 
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <button type="button" class="btn btn-secondary" id="add-product">
-                            <i class="fas fa-plus"></i> Adicionar Produto
-                        </button>
-                    </div>
-                </div>
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="total_order" class="form-label">Valor Total do Pedido</label>
-                        <input type="text" class="form-control" id="total_order" name="total_price" readonly>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="status" class="form-label">Status</label>
-                        <select class="form-select" id="status" name="status" required>
-                            <option value="pending">Pendente</option>
-                            <option value="approved">Aprovado</option>
-                            <option value="delivered">Entregue</option>
-                            <option value="cancelled">Cancelado</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button type="submit" class="btn btn-dark">
-                        <i class="fas fa-save"></i> Salvar Pedido
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const productsContainer = document.getElementById('products-container');
-    const addProductButton = document.getElementById('add-product');
-    const totalOrderInput = document.getElementById('total_order');
-
-    // Função para calcular o total de um produto
-    function calculateProductTotal(row) {
-        const select = row.querySelector('.product-select');
-        const quantity = row.querySelector('.quantity-input');
-        const total = row.querySelector('.total-price');
-        
-        const selectedOption = select.options[select.selectedIndex];
-        const price = selectedOption ? parseFloat(selectedOption.dataset.price) : 0;
-        const qty = parseInt(quantity.value) || 0;
-        const productTotal = price * qty;
-        
-        total.value = productTotal.toFixed(2);
-        calculateOrderTotal();
-    }
-
-    // Função para calcular o total do pedido
-    function calculateOrderTotal() {
-        let total = 0;
-        document.querySelectorAll('.total-price').forEach(input => {
-            total += parseFloat(input.value) || 0;
+        // Verificar autenticação
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userEmail').textContent = user.email;
+            } else {
+                window.location.href = '../../index.html';
+            }
         });
-        totalOrderInput.value = total.toFixed(2);
-    }
 
-    // Adicionar novo produto
-    addProductButton.addEventListener('click', function() {
-        const newRow = document.querySelector('.product-row').cloneNode(true);
-        newRow.querySelector('.product-select').value = '';
-        newRow.querySelector('.quantity-input').value = '';
-        newRow.querySelector('.total-price').value = '';
-        newRow.querySelector('.remove-product').style.display = 'block';
-        
-        productsContainer.appendChild(newRow);
-        
-        // Adicionar eventos ao novo produto
-        newRow.querySelector('.product-select').addEventListener('change', function() {
-            calculateProductTotal(newRow);
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                window.location.href = '../../index.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao fazer logout. Por favor, tente novamente.');
+            }
         });
-        
-        newRow.querySelector('.quantity-input').addEventListener('input', function() {
-            calculateProductTotal(newRow);
-        });
-        
-        newRow.querySelector('.remove-product').addEventListener('click', function() {
-            newRow.remove();
-            calculateOrderTotal();
-        });
-    });
 
-    // Remover produto
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-product')) {
-            e.target.closest('.product-row').remove();
-            calculateOrderTotal();
-        }
-    });
+        document.addEventListener('DOMContentLoaded', async function() {
+            const productsContainer = document.getElementById('products-container');
+            const addProductButton = document.getElementById('add-product');
+            const totalOrderInput = document.getElementById('total_order');
 
-    // Eventos para o primeiro produto
-    const firstRow = document.querySelector('.product-row');
-    firstRow.querySelector('.product-select').addEventListener('change', function() {
-        calculateProductTotal(firstRow);
-    });
-    
-    firstRow.querySelector('.quantity-input').addEventListener('input', function() {
-        calculateProductTotal(firstRow);
-    });
-});
-</script>
-{% endblock %} 
+            // Obter ID do revendedor da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const resellerId = urlParams.get('id');
+            
+            console.log('ID do revendedor:', resellerId); // Debug
+
+            if (!resellerId) {
+                alert('ID do revendedor não encontrado!');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Verificar se o revendedor existe e está ativo
+            try {
+                console.log('Buscando revendedor:', resellerId); // Debug
+                const resellerDoc = await db.collection('resellers').doc(resellerId).get();
+                
+                if (!resellerDoc.exists) {
+                    console.error('Revendedor não encontrado:', resellerId); // Debug
+                    alert('Revendedor não encontrado!');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const reseller = resellerDoc.data();
+                console.log('Dados do revendedor:', reseller); // Debug
+
+                if (!reseller.is_active) {
+                    alert('Este revendedor está inativo. Ative-o antes de criar pedidos.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // Carregar produtos do estoque
+                async function loadStockProducts() {
+                    try {
+                        console.log('Iniciando carregamento de produtos...'); // Debug
+
+                        // Buscar todos os produtos disponíveis
+                        const productsSnapshot = await db.collection('products').get();
+                        console.log('Produtos encontrados:', productsSnapshot.size); // Debug
+
+                        const productSelect = document.querySelector('.product-select');
+                        if (!productSelect) {
+                            console.error('Elemento select não encontrado!');
+                            return;
+                        }
+
+                        // Limpar select
+                        productSelect.innerHTML = '<option value="">Selecione um produto</option>';
+
+                        if (productsSnapshot.empty) {
+                            console.log('Nenhum produto disponível'); // Debug
+                            productSelect.innerHTML += '<option value="" disabled>Nenhum produto disponível</option>';
+                            return;
+                        }
+
+                        // Ordenar produtos por nome
+                        const products = [];
+                        productsSnapshot.forEach(doc => {
+                            const product = doc.data();
+                            products.push({
+                                id: doc.id,
+                                name: product.name,
+                                price: product.price || 0,
+                                size: product.size || 'N/A',
+                                type: product.type || 'N/A'
+                            });
+                        });
+
+                        products.sort((a, b) => a.name.localeCompare(b.name));
+
+                        console.log('Produtos ordenados:', products); // Debug
+
+                        // Adicionar produtos ao select
+                        products.forEach(product => {
+                            const option = document.createElement('option');
+                            option.value = product.id;
+                            option.textContent = `${product.name} (${product.size}) - R$ ${parseFloat(product.price).toFixed(2)}`;
+                            option.dataset.price = product.price;
+                            option.dataset.size = product.size;
+                            option.dataset.type = product.type;
+                            productSelect.appendChild(option);
+                        });
+
+                        console.log('Produtos carregados com sucesso'); // Debug
+                    } catch (error) {
+                        console.error('Erro ao carregar produtos:', error);
+                        console.error('Detalhes do erro:', {
+                            message: error.message,
+                            code: error.code,
+                            stack: error.stack
+                        });
+                        alert('Erro ao carregar produtos. Por favor, tente novamente.');
+                    }
+                }
+
+                // Função para calcular o total de um produto
+                function calculateProductTotal(row) {
+                    const select = row.querySelector('.product-select');
+                    const quantity = row.querySelector('.quantity-input');
+                    const total = row.querySelector('.total-price');
+                    
+                    const selectedOption = select.options[select.selectedIndex];
+                    if (!selectedOption || !selectedOption.value) {
+                        total.value = '';
+                        return;
+                    }
+
+                    const price = parseFloat(selectedOption.dataset.price) || 0;
+                    const stock = parseInt(selectedOption.dataset.stock) || 0;
+                    const qty = parseInt(quantity.value) || 0;
+                    
+                    // Validar quantidade
+                    if (qty > stock) {
+                        alert(`Quantidade indisponível. Estoque atual: ${stock}`);
+                        quantity.value = stock;
+                        return;
+                    }
+                    
+                    const productTotal = price * qty;
+                    total.value = `R$ ${productTotal.toFixed(2)}`;
+                    calculateOrderTotal();
+                }
+
+                // Função para calcular o total do pedido
+                function calculateOrderTotal() {
+                    let total = 0;
+                    document.querySelectorAll('.total-price').forEach(input => {
+                        const value = input.value.replace('R$ ', '').replace(',', '.');
+                        total += parseFloat(value) || 0;
+                    });
+                    totalOrderInput.value = `R$ ${total.toFixed(2)}`;
+                }
+
+                // Adicionar novo produto
+                addProductButton.addEventListener('click', function() {
+                    const newRow = document.querySelector('.product-row').cloneNode(true);
+                    newRow.querySelector('.product-select').value = '';
+                    newRow.querySelector('.quantity-input').value = '';
+                    newRow.querySelector('.total-price').value = '';
+                    newRow.querySelector('.remove-product').style.display = 'block';
+                    
+                    productsContainer.appendChild(newRow);
+                    
+                    // Adicionar eventos ao novo produto
+                    newRow.querySelector('.product-select').addEventListener('change', function() {
+                        calculateProductTotal(newRow);
+                    });
+                    
+                    newRow.querySelector('.quantity-input').addEventListener('input', function() {
+                        calculateProductTotal(newRow);
+                    });
+                    
+                    newRow.querySelector('.remove-product').addEventListener('click', function() {
+                        newRow.remove();
+                        calculateOrderTotal();
+                    });
+                });
+
+                // Eventos para o primeiro produto
+                const firstRow = document.querySelector('.product-row');
+                firstRow.querySelector('.product-select').addEventListener('change', function() {
+                    calculateProductTotal(firstRow);
+                });
+                
+                firstRow.querySelector('.quantity-input').addEventListener('input', function() {
+                    calculateProductTotal(firstRow);
+                });
+
+                // Carregar produtos ao iniciar
+                await loadStockProducts();
+
+            } catch (error) {
+                console.error('Erro ao verificar revendedor:', error);
+                alert('Erro ao verificar revendedor. Por favor, tente novamente.');
+                window.location.href = 'index.html';
+                return;
+            }
+        });
+
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const resellerId = urlParams.get('id');
+                
+                if (!resellerId) {
+                    alert('ID do revendedor não encontrado!');
+                    return;
+                }
+
+                const status = document.getElementById('status').value;
+                const total = parseFloat(document.getElementById('total_order').value.replace('R$ ', '').replace(',', '.'));
+                
+                const products = [];
+                document.querySelectorAll('.product-row').forEach(row => {
+                    const productId = row.querySelector('.product-select').value;
+                    const productName = row.querySelector('.product-select option:checked').textContent.split(' - ')[0];
+                    const quantity = parseInt(row.querySelector('.quantity-input').value);
+                    const price = parseFloat(row.querySelector('.total-price').value.replace('R$ ', '').replace(',', '.'));
+                    
+                    if (productId && quantity) {
+                        products.push({
+                            product_id: productId,
+                            name: productName,
+                            quantity: quantity,
+                            price: price / quantity
+                        });
+                    }
+                });
+
+                if (products.length === 0) {
+                    alert('Adicione pelo menos um produto ao pedido');
+                    return;
+                }
+
+                // Buscar taxa de comissão do revendedor
+                const resellerDoc = await db.collection('resellers').doc(resellerId).get();
+                const reseller = resellerDoc.data();
+                const commission_rate = reseller.commission_rate || 0;
+
+                // Salvar pedido
+                await db.collection('orders').add({
+                    resellerId: resellerId,
+                    status: status,
+                    total: total,
+                    products: products,
+                    commission_rate: commission_rate,
+                    createdAt: new Date()
+                });
+
+                alert('Pedido salvo com sucesso!');
+                window.location.href = `show.html?id=${resellerId}`;
+            } catch (error) {
+                console.error('Erro ao salvar pedido:', error);
+                alert('Erro ao salvar pedido: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html> 

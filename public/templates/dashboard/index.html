@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Radiante Perfumaria</title>
+    <link rel="stylesheet" href="../../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <img src="../../static/img/logo.png" alt="Plataforma Radiante">
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="../products/index.html"><i class="fas fa-box"></i> Produtos</a></li>
+                    <li><a href="../resellers/index.html"><i class="fas fa-users"></i> Revendedores</a></li>
+                    <li><a href="../orders/index.html"><i class="fas fa-shopping-cart"></i> Pedidos</a></li>
+                    <li><a href="../sales_tracking/index.html"><i class="fas fa-chart-line"></i> Controle de Vendas</a></li>
+                    <li><a href="../cash_control/index.html"><i class="fas fa-cash-register"></i> Controle de Caixa</a></li>
+                    <li><a href="../tasks/index.html"><i class="fas fa-tasks"></i> Tarefas</a></li>
+                    <li><a href="../settings/index.html"><i class="fas fa-cog"></i> Configurações</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Dashboard</h1>
+                    <div class="user-info">
+                        <span id="userEmail"></span>
+                        <button id="logoutBtn" class="btn-logout">Sair</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- Cards de Resumo -->
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total de Produtos</h5>
+                                <p class="card-text" id="totalProducts">0</p>
+                                <i class="fas fa-box card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Total de Revendedores</h5>
+                                <p class="card-text" id="totalResellers">0</p>
+                                <i class="fas fa-users card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Pedidos Pendentes</h5>
+                                <p class="card-text" id="pendingOrders">0</p>
+                                <i class="fas fa-shopping-cart card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Faturamento Mensal</h5>
+                                <p class="card-text" id="monthlyRevenue">R$ 0,00</p>
+                                <i class="fas fa-dollar-sign card-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Últimos Pedidos -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Últimos Pedidos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Revendedor</th>
+                                        <th>Valor</th>
+                                        <th>Status</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentOrders">
+                                    <!-- Pedidos serão inseridos aqui via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Produtos Mais Vendidos -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Produtos Mais Vendidos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Quantidade Vendida</th>
+                                        <th>Valor Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="topProducts">
+                                    <!-- Produtos serão inseridos aqui via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3b8HR1Gcmfp4YMh7Ibj7a-X7sGYd_6uk",
+            authDomain: "plataforma-radiante.firebaseapp.com",
+            projectId: "plataforma-radiante",
+            storageBucket: "plataforma-radiante.appspot.com",
+            messagingSenderId: "990096383941",
+            appId: "1:990096383941:web:46541971f9a5e86ead75ac",
+            measurementId: "G-VZZZYRQZFP"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Verificar autenticação
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userEmail').textContent = user.email;
+                loadDashboardData();
+            } else {
+                window.location.href = '../../index.html';
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                window.location.href = '../../index.html';
+            } catch (error) {
+                console.error('Erro ao fazer logout:', error);
+                alert('Erro ao fazer logout. Por favor, tente novamente.');
+            }
+        });
+
+        // Carregar dados do dashboard
+        async function loadDashboardData() {
+            try {
+                // Carregar total de produtos
+                const productsSnapshot = await db.collection('products').get();
+                document.getElementById('totalProducts').textContent = productsSnapshot.size;
+
+                // Carregar total de revendedores
+                const resellersSnapshot = await db.collection('resellers').get();
+                document.getElementById('totalResellers').textContent = resellersSnapshot.size;
+
+                // Carregar pedidos pendentes
+                const pendingOrdersSnapshot = await db.collection('orders')
+                    .where('status', '==', 'pending')
+                    .get();
+                document.getElementById('pendingOrders').textContent = pendingOrdersSnapshot.size;
+
+                // Carregar faturamento mensal
+                const startOfMonth = new Date();
+                startOfMonth.setDate(1);
+                startOfMonth.setHours(0, 0, 0, 0);
+
+                const ordersSnapshot = await db.collection('orders')
+                    .where('createdAt', '>=', startOfMonth)
+                    .get();
+
+                let monthlyRevenue = 0;
+                ordersSnapshot.forEach(doc => {
+                    const order = doc.data();
+                    monthlyRevenue += order.total || 0;
+                });
+
+                document.getElementById('monthlyRevenue').textContent = 
+                    `R$ ${monthlyRevenue.toFixed(2)}`;
+
+                // Carregar últimos pedidos
+                const recentOrdersSnapshot = await db.collection('orders')
+                    .orderBy('createdAt', 'desc')
+                    .limit(5)
+                    .get();
+
+                const recentOrdersList = document.getElementById('recentOrders');
+                recentOrdersList.innerHTML = '';
+
+                if (recentOrdersSnapshot.empty) {
+                    recentOrdersList.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center">Nenhum pedido encontrado</td>
+                        </tr>
+                    `;
+                } else {
+                    recentOrdersSnapshot.forEach(doc => {
+                        const order = doc.data();
+                        const row = document.createElement('tr');
+                        
+                        row.innerHTML = `
+                            <td>${doc.id}</td>
+                            <td>${order.resellerName || 'N/A'}</td>
+                            <td>R$ ${order.total.toFixed(2)}</td>
+                            <td>
+                                <span class="badge ${getStatusBadgeClass(order.status)}">
+                                    ${getStatusText(order.status)}
+                                </span>
+                            </td>
+                            <td>${formatDate(order.createdAt)}</td>
+                        `;
+                        
+                        recentOrdersList.appendChild(row);
+                    });
+                }
+
+                // Carregar produtos mais vendidos
+                const ordersSnapshot2 = await db.collection('orders').get();
+                const productSales = {};
+
+                ordersSnapshot2.forEach(doc => {
+                    const order = doc.data();
+                    if (order.products) {
+                        order.products.forEach(product => {
+                            if (!productSales[product.product]) {
+                                productSales[product.product] = {
+                                    quantity: 0,
+                                    total: 0
+                                };
+                            }
+                            productSales[product.product].quantity += product.quantity;
+                            productSales[product.product].total += product.price;
+                        });
+                    }
+                });
+
+                const topProductsList = document.getElementById('topProducts');
+                topProductsList.innerHTML = '';
+
+                if (Object.keys(productSales).length === 0) {
+                    topProductsList.innerHTML = `
+                        <tr>
+                            <td colspan="3" class="text-center">Nenhum produto vendido</td>
+                        </tr>
+                    `;
+                } else {
+                    const sortedProducts = Object.entries(productSales)
+                        .sort(([, a], [, b]) => b.quantity - a.quantity)
+                        .slice(0, 5);
+
+                    for (const [productId, sales] of sortedProducts) {
+                        const productDoc = await db.collection('products').doc(productId).get();
+                        const product = productDoc.data();
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${product ? product.name : 'Produto não encontrado'}</td>
+                            <td>${sales.quantity}</td>
+                            <td>R$ ${sales.total.toFixed(2)}</td>
+                        `;
+                        topProductsList.appendChild(row);
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do dashboard:', error);
+                alert('Erro ao carregar dados do dashboard. Por favor, tente novamente.');
+            }
+        }
+
+        // Funções auxiliares
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'pending':
+                    return 'badge-warning';
+                case 'approved':
+                    return 'badge-success';
+                case 'delivered':
+                    return 'badge-info';
+                case 'cancelled':
+                    return 'badge-danger';
+                default:
+                    return 'badge-secondary';
+            }
+        }
+
+        function getStatusText(status) {
+            switch (status) {
+                case 'pending':
+                    return 'Pendente';
+                case 'approved':
+                    return 'Aprovado';
+                case 'delivered':
+                    return 'Entregue';
+                case 'cancelled':
+                    return 'Cancelado';
+                default:
+                    return status;
+            }
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = timestamp.toDate();
+            return date.toLocaleDateString('pt-BR');
+        }
+    </script>
+</body>
+</html> 

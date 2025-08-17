@@ -1,23 +1,39 @@
-{% extends "base.html" %}
-
-{% block title %}Dashboard - Radiante Perfumaria{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Radiante Perfumaria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <style>
+    .dashboard-card { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border-radius: 15px; padding: 20px; text-align: center; }
+    .dashboard-card i { font-size: 2.5rem; margin-bottom: 10px; }
+    .dashboard-card h3 { font-size: 1.8rem; margin-bottom: 5px; }
+    .dashboard-card p { margin-bottom: 0; opacity: 0.9; }
+    .card { border: none; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    .card-header { border-bottom: 1px solid rgba(0,0,0,0.1); }
+    .list-group-item { border: none; border-bottom: 1px solid rgba(0,0,0,0.1); }
+    .list-group-item:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/templates/index.html">Radiante</a>
+    <a class="navbar-brand" href="../index.html">Radiante</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" href="/templates/index.html">Início</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/main/dashboard.html">Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/products/index.html">Produtos</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/resellers/index.html">Revendedores</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/tasks/index.html">Tarefas</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/auth/login.html">Login</a></li>
-        <li class="nav-item"><a class="nav-link" href="/templates/auth/register.html">Cadastro</a></li>
+        <li class="nav-item"><a class="nav-link" href="../index.html">Início</a></li>
+        <li class="nav-item"><a class="nav-link" href="dashboard.html">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="../products/index.html">Produtos</a></li>
+        <li class="nav-item"><a class="nav-link" href="../resellers/index.html">Revendedores</a></li>
+        <li class="nav-item"><a class="nav-link" href="../tasks/index.html">Tarefas</a></li>
+        <li class="nav-item"><a class="nav-link" href="../auth/login.html">Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="../auth/register.html">Cadastro</a></li>
       </ul>
     </div>
   </div>
@@ -27,119 +43,160 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <h1 class="h2">Dashboard</h1>
-            <p class="text-muted">Bem-vindo, {{ current_user.username }}! Aqui está um resumo das suas atividades.</p>
+            <p class="text-muted">Bem-vindo, <strong>Usuário Exemplo</strong>! Aqui está um resumo das suas atividades.</p>
         </div>
     </div>
 
     <div class="row">
         <!-- Cards de Resumo -->
         <div class="col-md-3 mb-4">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">Total de Produtos</h6>
-                            <h2 class="mb-0">{{ total_products }}</h2>
-                        </div>
-                        <i class="fas fa-box fa-2x"></i>
-                    </div>
-                </div>
+            <div class="dashboard-card">
+                <i class="fas fa-box"></i>
+                <h3>120</h3>
+                <p>Produtos</p>
             </div>
         </div>
 
         <div class="col-md-3 mb-4">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">Total de Revendedores</h6>
-                            <h2 class="mb-0">{{ total_resellers }}</h2>
-                        </div>
-                        <i class="fas fa-users fa-2x"></i>
-                    </div>
-                </div>
+            <div class="dashboard-card">
+                <i class="fas fa-users"></i>
+                <h3>35</h3>
+                <p>Revendedores</p>
             </div>
         </div>
 
         <div class="col-md-3 mb-4">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">Tarefas Pendentes</h6>
-                            <h2 class="mb-0">{{ pending_tasks }}</h2>
-                        </div>
-                        <i class="fas fa-tasks fa-2x"></i>
-                    </div>
-                </div>
+            <div class="dashboard-card">
+                <i class="fas fa-tasks"></i>
+                <h3>8</h3>
+                <p>Tarefas</p>
             </div>
         </div>
 
         <div class="col-md-3 mb-4">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="card-title">Vendas do Mês</h6>
-                            <h2 class="mb-0">R$ {{ monthly_sales }}</h2>
-                        </div>
-                        <i class="fas fa-chart-line fa-2x"></i>
-                    </div>
-                </div>
+            <div class="dashboard-card">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>R$ 2.500,00</h3>
+                <p>Vendas</p>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <!-- Últimas Tarefas -->
-        <div class="col-md-6 mb-4">
+        <div class="col-md-8 mb-4">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Últimas Tarefas</h5>
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Vendas Recentes</h5>
                 </div>
                 <div class="card-body">
-                    <div class="list-group">
-                        {% for task in recent_tasks %}
-                        <div class="list-group-item">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ task.title }}</h6>
-                                <small class="text-{{ 'success' if task.status == 'done' else 'warning' }}">
-                                    {{ task.status|replace('_', ' ')|title }}
-                                </small>
-                            </div>
-                            <p class="mb-1">{{ task.description }}</p>
-                            <small>Vencimento: {{ task.due_date.strftime('%d/%m/%Y') }}</small>
-                        </div>
-                        {% endfor %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Revendedor</th>
+                                    <th>Produto</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Exemplo de linha -->
+                                <tr>
+                                    <td>10/06/2024</td>
+                                    <td>Maria Silva</td>
+                                    <td>Perfume X</td>
+                                    <td>R$ 120,00</td>
+                                    <td><span class="badge bg-success">Concluído</span></td>
+                                </tr>
+                                <!-- Adicione mais linhas ou integre com JS/Firebase -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Últimos Produtos -->
-        <div class="col-md-6 mb-4">
+        <div class="col-md-4 mb-4">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Últimos Produtos</h5>
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Tarefas Pendentes</h5>
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        {% for product in recent_products %}
-                        <div class="list-group-item">
+                        <!-- Exemplo de tarefa -->
+                        <div class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">{{ product.name }}</h6>
-                                <small class="text-{{ 'success' if product.stock > 0 else 'danger' }}">
-                                    Estoque: {{ product.stock }}
-                                </small>
+                                <h6 class="mb-1">Enviar pedido ao fornecedor</h6>
+                                <small class="text-muted">12/06</small>
                             </div>
-                            <p class="mb-1">R$ {{ "%.2f"|format(product.price) }}</p>
-                            <small>Categoria: {{ product.category }}</small>
+                            <p class="mb-1">Solicitar reposição de estoque para os produtos em falta.</p>
+                            <small><span class="badge bg-danger">Alta</span></small>
                         </div>
-                        {% endfor %}
+                        <!-- Adicione mais tarefas ou integre com JS/Firebase -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Produtos com Baixo Estoque</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Estoque</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Perfume Y</td>
+                                    <td>2</td>
+                                    <td><button class="btn btn-sm btn-warning"><i class="fas fa-exclamation-triangle"></i> Repor</button></td>
+                                </tr>
+                                <!-- Adicione mais linhas ou integre com JS/Firebase -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="card-title mb-0">Revendedores Ativos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Vendas</th>
+                                    <th>Comissão</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>João Souza</td>
+                                    <td>15</td>
+                                    <td>R$ 450,00</td>
+                                </tr>
+                                <!-- Adicione mais linhas ou integre com JS/Firebase -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %} 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

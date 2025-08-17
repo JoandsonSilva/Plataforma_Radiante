@@ -1,528 +1,939 @@
-{% extends "base.html" %}
-
-{% block title %}{{ reseller.name }} - Radiante Perfumaria{% endblock %}
-
-{% block content %}
-<div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center">
-            <div class="me-3">
-                <img src="{{ reseller.photo_url or url_for('static', filename='img/default-avatar.png') }}" 
-                     class="rounded-circle" 
-                     alt="{{ reseller.name }}"
-                     style="width: 80px; height: 80px; object-fit: cover;">
-            </div>
-            <h1 class="mb-0">{{ reseller.name }}</h1>
-        </div>
-        <div>
-            <a href="{{ url_for('resellers.index') }}" class="btn btn-outline-dark">
-                <i class="fas fa-arrow-left"></i> Voltar
-            </a>
-            <a href="{{ url_for('resellers.edit', id=reseller.id) }}" class="btn btn-dark">
-                <i class="fas fa-edit"></i> Editar
-            </a>
-        </div>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalhes do Revendedor - Radiante Perfumaria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../../static/css/style.css">
+  <style>
+    .bg-gradient-dark { background: linear-gradient(45deg, #2c3e50, #34495e); }
+    .card { transition: transform 0.2s; }
+    .card:hover { transform: translateY(-5px); }
+    .dropdown-menu { z-index: 9999; position: absolute; top: 100%; left: 0; min-width: 10rem; padding: 0.5rem 0; margin: 0.125rem 0 0; font-size: 1rem; color: #212529; text-align: left; list-style: none; background-color: #fff; background-clip: padding-box; border: 1px solid rgba(0,0,0,.15); border-radius: 0.25rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15); overflow: visible; }
+    .dropdown-item { display: block; width: 100%; padding: 0.25rem 1rem; clear: both; font-weight: 400; color: #212529; text-align: inherit; text-decoration: none; white-space: nowrap; background-color: transparent; border: 0; }
+    .dropdown-item:hover { color: #16181b; background-color: #f8f9fa; }
+    .dropdown-divider { height: 0; margin: 0.5rem 0; overflow: hidden; border-top: 1px solid #e9ecef; }
+    .dropdown { position: relative; }
+    .dropdown-menu.show { display: block; position: absolute; top: 100%; left: 0; margin-top: 0; z-index: 9999; }
+    .table-responsive { overflow: visible; }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-right: 1rem;
+    }
+    .action-buttons .btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .action-buttons .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .action-buttons .btn-primary {
+      background-color: #4a90e2;
+      border-color: #4a90e2;
+    }
+    .action-buttons .btn-success {
+      background-color: #2ecc71;
+      border-color: #2ecc71;
+    }
+    .action-buttons .btn i {
+      font-size: 0.9rem;
+    }
+    .btn-logout {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    .btn-logout:hover {
+      background-color: #c0392b;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    #userEmail {
+      color: #666;
+      font-weight: 500;
+    }
+    .card-header {
+      background: linear-gradient(45deg, #2c3e50, #3498db);
+      padding: 1rem;
+    }
+    .card-title {
+      color: white;
+      font-weight: 600;
+      margin: 0;
+    }
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .btn-action {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .btn-primary {
+      background-color: #2ecc71;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #27ae60;
+    }
+    .table {
+      margin-bottom: 0;
+    }
+    .table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #495057;
+      border-bottom: 2px solid #dee2e6;
+    }
+    .table td {
+      vertical-align: middle;
+      color: #212529;
+    }
+    .status-select {
+      min-width: 120px;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      border-radius: 4px;
+      border: 1px solid #ced4da;
+      background-color: #fff;
+      transition: all 0.2s ease;
+    }
+    .status-select:focus {
+      border-color: #80bdff;
+      box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    .save-status {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+    .save-status:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .table-hover tbody tr:hover {
+      background-color: rgba(0,123,255,0.05);
+    }
+    .reseller-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .reseller-avatar {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8f9fa;
+      border-radius: 50%;
+      color: #6c757d;
+    }
+    .reseller-details {
+      flex: 1;
+    }
+    .reseller-details h2 {
+      margin: 0 0 1rem 0;
+      color: #2c3e50;
+    }
+    .reseller-details p {
+      margin: 0.5rem 0;
+      color: #6c757d;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .reseller-details i {
+      width: 20px;
+      color: #3498db;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <div class="logo">
+        <img src="../../static/img/logo.png" alt="Plataforma Radiante">
+      </div>
+      <nav>
+        <ul>
+          <li><a href="http://127.0.0.1:5500/Plataforma_Radiante/public/templates/dashboard/index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li><a href="../products/index.html"><i class="fas fa-box"></i> Produtos</a></li>
+          <li><a href="../resellers/index.html" class="active"><i class="fas fa-users"></i> Revendedores</a></li>
+          <li><a href="../orders/index.html"><i class="fas fa-shopping-cart"></i> Pedidos</a></li>
+          <li><a href="../tasks/index.html"><i class="fas fa-tasks"></i> Tarefas</a></li>
+          <li><a href="../settings/index.html"><i class="fas fa-cog"></i> Configurações</a></li>
+        </ul>
+      </nav>
     </div>
 
-    <div class="row">
-        <!-- Informações do Revendedor -->
-        <div class="col-md-4 mb-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-gradient-dark text-white">
-                    <h5 class="card-title mb-0">Informações do Revendedor</h5>
-                </div>
-                <div class="card-body">
-                    <p><strong>Email:</strong> {{ reseller.email }}</p>
-                    <p><strong>Telefone:</strong> {{ reseller.phone }}</p>
-                    <p><strong>CPF/CNPJ:</strong> {{ reseller.document }}</p>
-                    <p><strong>Endereço:</strong> {{ reseller.address }}</p>
-                    <p><strong>Cidade:</strong> {{ reseller.city }}/{{ reseller.state }}</p>
-                    <p><strong>CEP:</strong> {{ reseller.zip_code }}</p>
-                    <p><strong>Status:</strong> 
-                        <span class="badge bg-{{ 'success' if reseller.is_active else 'danger' }}">
-                            {{ 'Ativo' if reseller.is_active else 'Inativo' }}
-                        </span>
-                    </p>
-                </div>
+    <div class="main-content">
+      <header>
+        <div class="header-content">
+          <h1>Detalhes do Revendedor</h1>
+          <div class="user-info">
+            <div class="action-buttons">
+              <a href="edit.html?id=${resellerId}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Editar Revendedor
+              </a>
+              <a href="create_order.html?id=${resellerId}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Novo Pedido
+              </a>
             </div>
+            <span id="userEmail"></span>
+            <button id="logoutBtn" class="btn-logout">Sair</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="reseller-info">
+          <div class="reseller-avatar">
+            <i class="fas fa-user-circle fa-3x"></i>
+          </div>
+          <div class="reseller-details">
+            <h2 id="resellerName">Carregando...</h2>
+            <p id="resellerEmail"><i class="fas fa-envelope"></i> Carregando...</p>
+            <p id="resellerPhone"><i class="fas fa-phone"></i> Carregando...</p>
+            <p id="resellerAddress"><i class="fas fa-map-marker-alt"></i> Carregando...</p>
+            <p id="resellerCreatedAt"><i class="fas fa-calendar"></i> Carregando...</p>
+          </div>
         </div>
 
-        <!-- Resumo de Vendas e Comissões -->
-        <div class="col-md-8 mb-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-gradient-dark text-white">
-                    <h5 class="card-title mb-0">Resumo de Vendas e Comissões</h5>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Informações do Revendedor</h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <div>
+                    <span id="statusBadge" class="badge">Carregando...</span>
+                  </div>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light border-0 shadow-sm">
-                                <div class="card-body text-center">
-                                    <h6 class="card-title">Total de Vendas</h6>
-                                    <h3>R$ {{ "%.2f"|format(sales|sum(attribute='amount')) }}</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light border-0 shadow-sm">
-                                <div class="card-body text-center">
-                                    <h6 class="card-title">Comissão Total</h6>
-                                    <h3>R$ {{ "%.2f"|format(sales|sum(attribute='commission')) }}</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light border-0 shadow-sm">
-                                <div class="card-body text-center">
-                                    <h6 class="card-title">Taxa de Comissão</h6>
-                                    <h3>{{ reseller.commission_rate }}%</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="mb-3">
+                  <label class="form-label">Taxa de Comissão</label>
+                  <div>
+                    <span id="commissionRate">Carregando...</span>
+                  </div>
                 </div>
+              </div>
             </div>
+          </div>
+
+          <!-- Resumo de Vendas e Comissões -->
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Resumo de Vendas e Comissões</h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <div class="card bg-light border-0 shadow-sm">
+                      <div class="card-body text-center">
+                        <h6 class="card-title">Total de Vendas</h6>
+                        <h3 id="totalSales">R$ 0,00</h3>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <div class="card bg-light border-0 shadow-sm">
+                      <div class="card-body text-center">
+                        <h6 class="card-title">Comissão Total</h6>
+                        <h3 id="totalCommission">R$ 0,00</h3>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Estoque Atual do Revendedor -->
-        <div class="col-md-12 mb-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-gradient-dark text-white">
-                    <h5 class="card-title mb-0">Estoque Atual</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Produto</th>
-                                    <th>Quantidade em Estoque</th>
-                                    <th>Valor Unitário</th>
-                                    <th>Valor Total em Estoque</th>
-                                    <th>Última Venda</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for product, quantity, last_sale in reseller.current_inventory %}
-                                <tr>
-                                    <td>{{ product.name }}</td>
-                                    <td>{{ quantity }}</td>
-                                    <td>R$ {{ "%.2f"|format(product.price) }}</td>
-                                    <td>R$ {{ "%.2f"|format(product.price * quantity) }}</td>
-                                    <td>
-                                        {% if last_sale %}
-                                            {{ last_sale.strftime('%d/%m/%Y') }}
-                                        {% else %}
-                                            N/A
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Histórico de Vendas por Produto -->
-        <div class="col-md-12 mb-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-gradient-dark text-white">
-                    <h5 class="card-title mb-0">Histórico de Vendas por Produto</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Produto</th>
-                                    <th>Quantidade Vendida</th>
-                                    <th>Valor Total Vendido</th>
-                                    <th>Primeira Venda</th>
-                                    <th>Última Venda</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for product, total_quantity, total_amount, first_sale, last_sale in reseller.sales_by_product %}
-                                <tr>
-                                    <td>{{ product.name }}</td>
-                                    <td>{{ total_quantity }}</td>
-                                    <td>R$ {{ "%.2f"|format(total_amount) }}</td>
-                                    <td>{{ first_sale.strftime('%d/%m/%Y') }}</td>
-                                    <td>{{ last_sale.strftime('%d/%m/%Y') }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Histórico de Pedidos -->
-    <div class="card mb-4 border-0 shadow-sm">
-        <div class="card-header bg-gradient-dark text-white d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Histórico de Pedidos</h5>
-            <div>
-                <div class="btn-group me-2">
-                    <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fas fa-filter"></i> Filtrar
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="filterOrders('all')">Todos</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="filterOrders('pending')">Pendentes</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="filterOrders('approved')">Aprovados</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="filterOrders('delivered')">Entregues</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="filterOrders('cancelled')">Cancelados</a></li>
-                    </ul>
-                </div>
-                <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteSelectedOrders()">
-                    <i class="fas fa-trash"></i> Excluir Selecionados
-                </button>
-                <a href="{{ url_for('resellers.create_order', id=reseller.id) }}" class="btn btn-light btn-sm">
-                    <i class="fas fa-plus"></i> Novo Pedido
-                </a>
-            </div>
-        </div>
-        <div class="card-body">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Estoque Atual</h5>
+          </div>
+          <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover" id="ordersTable">
-                    <thead>
-                        <tr>
-                            <th>
-                                <input type="checkbox" id="selectAllOrders" onchange="toggleAllOrders(this)">
-                            </th>
-                            <th>Data</th>
-                            <th>Produtos</th>
-                            <th>Valor Total</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for order in orders %}
-                        <tr data-status="{{ order.status }}">
-                            <td>
-                                <input type="checkbox" class="order-checkbox" value="{{ order.id }}">
-                            </td>
-                            <td>{{ order.created_at.strftime('%d/%m/%Y') }}</td>
-                            <td>
-                                <ul>
-                                    {% for product, quantity, price in order.products_with_details %}
-                                        <li>{{ product.name }} - {{ quantity }} unidade(s) - R$ {{ "%.2f"|format(price) }} cada</li>
-                                    {% endfor %}
-                                </ul>
-                            </td>
-                            <td>R$ {{ "%.2f"|format(order.total_price) }}</td>
-                            <td>
-                                <span class="badge bg-{{ 'success' if order.status == 'delivered' else 'warning' }}">
-                                    {{ order.status|title }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="statusDropdown{{ order.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                        Alterar Status
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="statusDropdown{{ order.id }}">
-                                        <li>
-                                            <form method="POST" action="{{ url_for('resellers.update_order_status', id=reseller.id, order_id=order.id) }}">
-                                                <input type="hidden" name="status" value="pending">
-                                                <button type="submit" class="dropdown-item">Pendente</button>
-                                            </form>
-                                        </li>
-                                        <li>
-                                            <form method="POST" action="{{ url_for('resellers.update_order_status', id=reseller.id, order_id=order.id) }}">
-                                                <input type="hidden" name="status" value="approved">
-                                                <button type="submit" class="dropdown-item">Aprovado</button>
-                                            </form>
-                                        </li>
-                                        <li>
-                                            <form method="POST" action="{{ url_for('resellers.update_order_status', id=reseller.id, order_id=order.id) }}">
-                                                <input type="hidden" name="status" value="delivered">
-                                                <button type="submit" class="dropdown-item">Entregue</button>
-                                            </form>
-                                        </li>
-                                        <li>
-                                            <form method="POST" action="{{ url_for('resellers.update_order_status', id=reseller.id, order_id=order.id) }}">
-                                                <input type="hidden" name="status" value="cancelled">
-                                                <button type="submit" class="dropdown-item">Cancelado</button>
-                                            </form>
-                                        </li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <form method="POST" action="{{ url_for('resellers.delete_order', id=reseller.id, order_id=order.id) }}" onsubmit="return confirm('Tem certeza que deseja excluir este pedido?');">
-                                                <button type="submit" class="dropdown-item text-danger">
-                                                    <i class="fas fa-trash"></i> Excluir
-                                                </button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Produto</th>
+                    <th>Quantidade em Estoque</th>
+                    <th>Valor Unitário</th>
+                    <th>Valor Total em Estoque</th>
+                    <th>Última Venda</th>
+                  </tr>
+                </thead>
+                <tbody id="currentStock">
+                  <tr>
+                    <td colspan="5" class="text-center">Carregando estoque...</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
+          </div>
         </div>
-    </div>
 
-    <!-- Histórico de Vendas -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-header bg-gradient-dark text-white d-flex justify-content-between align-items-center">
+        <!-- Histórico de Pedidos -->
+        <div class="card mb-4 border-0 shadow-sm">
+          <div class="card-header bg-gradient-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Histórico de Pedidos</h5>
+            <div class="card-actions">
+              <a href="#" id="newOrderButton" class="btn-action btn-primary">
+                <i class="fas fa-plus"></i> Novo Pedido
+              </a>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover" id="ordersTable">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Produtos</th>
+                    <th>Valor Total</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="ordersHistory">
+                  <tr>
+                    <td colspan="5" class="text-center">Carregando pedidos...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Histórico de Vendas -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-gradient-dark text-white d-flex justify-content-between align-items-center">
             <h5 class="card-title mb-0">Histórico de Vendas</h5>
             <div>
-                <div class="btn-group me-2">
-                    <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="fas fa-filter"></i> Filtrar
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" onclick="filterSales('all')">Todos</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="filterSales('month')">Último Mês</a></li>
-                        <li><a class="dropdown-item" href="#" onclick="filterSales('year')">Último Ano</a></li>
-                    </ul>
-                </div>
-                <button type="button" class="btn btn-danger btn-sm me-2" onclick="deleteSelectedSales()">
-                    <i class="fas fa-trash"></i> Excluir Selecionados
-                </button>
-                <div>
-                    <a href="{{ url_for('resellers.monthly_sales', id=reseller.id) }}" class="btn btn-light btn-sm me-2">
-                        <i class="fas fa-calendar-alt"></i> Registrar Venda Mensal
-                    </a>
-                    <a href="{{ url_for('resellers.create_sale', id=reseller.id) }}" class="btn btn-light btn-sm">
-                        <i class="fas fa-plus"></i> Nova Venda
-                    </a>
-                </div>
+              <a href="monthly_sales.html" class="btn btn-light btn-sm me-2"><i class="fas fa-calendar-alt"></i> Registrar Venda Mensal</a>
+              <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#newSaleModal">
+                <i class="fas fa-plus"></i> Nova Venda
+              </button>
             </div>
-        </div>
-        <div class="card-body">
+          </div>
+          <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover" id="salesTable">
-                    <thead>
-                        <tr>
-                            <th>
-                                <input type="checkbox" id="selectAllSales" onchange="toggleAllSales(this)">
-                            </th>
-                            <th>Data</th>
-                            <th>Produtos</th>
-                            <th>Valor da Venda</th>
-                            <th>Comissão</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for sale in sales %}
-                        <tr data-date="{{ sale.sale_date.strftime('%Y-%m-%d') }}">
-                            <td>
-                                <input type="checkbox" class="sale-checkbox" value="{{ sale.id }}">
-                            </td>
-                            <td>{{ sale.sale_date.strftime('%d/%m/%Y') }}</td>
-                            <td>
-                                <ul class="list-unstyled mb-0">
-                                    {% for product, quantity, price in sale.products_with_details %}
-                                        <li>
-                                            {{ product.name }} - 
-                                            {{ quantity }} unidade(s) - 
-                                            R$ {{ "%.2f"|format(price) }} cada
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </td>
-                            <td>R$ {{ "%.2f"|format(sale.amount) }}</td>
-                            <td>R$ {{ "%.2f"|format(sale.commission) }}</td>
-                            <td>
-                                <form method="POST" action="{{ url_for('resellers.delete_sale', id=reseller.id, sale_id=sale.id) }}" onsubmit="return confirm('Tem certeza que deseja excluir esta venda?');">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+              <table class="table table-hover" id="salesTable">
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Produtos</th>
+                    <th>Valor da Venda</th>
+                    <th>Comissão</th>
+                  </tr>
+                </thead>
+                <tbody id="salesHistory">
+                  <tr>
+                    <td colspan="4" class="text-center">Carregando vendas...</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<style>
-.bg-gradient-dark {
-    background: linear-gradient(45deg, #2c3e50, #34495e);
-}
-.card {
-    transition: transform 0.2s;
-}
-.card:hover {
-    transform: translateY(-5px);
-}
-/* Estilos para o dropdown de status */
-.dropdown-menu {
-    z-index: 9999;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    min-width: 10rem;
-    padding: 0.5rem 0;
-    margin: 0.125rem 0 0;
-    font-size: 1rem;
-    color: #212529;
-    text-align: left;
-    list-style: none;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid rgba(0,0,0,.15);
-    border-radius: 0.25rem;
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
-    overflow: visible;
-}
-.dropdown-item {
-    display: block;
-    width: 100%;
-    padding: 0.25rem 1rem;
-    clear: both;
-    font-weight: 400;
-    color: #212529;
-    text-align: inherit;
-    text-decoration: none;
-    white-space: nowrap;
-    background-color: transparent;
-    border: 0;
-}
-.dropdown-item:hover {
-    color: #16181b;
-    background-color: #f8f9fa;
-}
-.dropdown-divider {
-    height: 0;
-    margin: 0.5rem 0;
-    overflow: hidden;
-    border-top: 1px solid #e9ecef;
-}
-/* Garante que o dropdown fique visível */
-.dropdown {
-    position: relative;
-}
-.dropdown-menu.show {
-    display: block;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 0;
-    z-index: 9999;
-}
-/* Ajusta a posição do dropdown para não ficar escondido */
-.table-responsive {
-    overflow: visible;
-}
-</style>
+  <!-- Modal Nova Venda -->
+  <div class="modal fade" id="newSaleModal" tabindex="-1" aria-labelledby="newSaleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-gradient-dark text-white">
+          <h5 class="modal-title" id="newSaleModalLabel">Nova Venda</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="newSaleForm">
+            <!-- Produtos em Estoque -->
+            <div class="mb-4">
+              <h6 class="mb-3">Produtos em Estoque</h6>
+              <div class="row" id="stockProducts">
+                <div class="col-12 text-center">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+            <!-- Produtos Selecionados -->
+            <div class="mb-4">
+              <h6 class="mb-3">Produtos Selecionados</h6>
+              <div id="saleProducts">
+                <!-- Produtos serão adicionados aqui -->
+              </div>
+              <div class="row mt-3">
+                <div class="col-md-6 offset-md-6">
+                  <div class="form-group">
+                    <label for="orderTotal">Total da Venda</label>
+                    <input type="text" class="form-control" id="orderTotal" readonly value="R$ 0,00">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="saveSale()">Salvar Venda</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyB3b8HR1Gcmfp4YMh7Ibj7a-X7sGYd_6uk",
+      authDomain: "plataforma-radiante.firebaseapp.com",
+      projectId: "plataforma-radiante",
+      storageBucket: "plataforma-radiante.appspot.com",
+      messagingSenderId: "990096383941",
+      appId: "1:990096383941:web:46541971f9a5e86ead75ac",
+      measurementId: "G-VZZZYRQZFP"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // Verificar autenticação
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById('userEmail').textContent = user.email;
+        loadResellerData();
+      } else {
+        window.location.href = '../../index.html';
+      }
     });
-});
 
-function filterOrders(status) {
-    const rows = document.querySelectorAll('#ordersTable tbody tr');
-    rows.forEach(row => {
-        if (status === 'all' || row.dataset.status === status) {
-            row.style.display = '';
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      try {
+        await auth.signOut();
+        window.location.href = '../../index.html';
+      } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+        alert('Erro ao fazer logout. Por favor, tente novamente.');
+      }
+    });
+
+    // Carregar dados do revendedor
+    async function loadResellerData() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const resellerId = urlParams.get('id');
+        
+        if (!resellerId) {
+          alert('ID do revendedor não encontrado!');
+          window.location.href = 'index.html';
+          return;
+        }
+
+        console.log('Carregando dados do revendedor:', resellerId); // Debug
+        const resellerDoc = await db.collection('resellers').doc(resellerId).get();
+        
+        if (!resellerDoc.exists) {
+          console.error('Revendedor não encontrado:', resellerId); // Debug
+          alert('Revendedor não encontrado!');
+          window.location.href = 'index.html';
+          return;
+        }
+
+        const reseller = resellerDoc.data();
+        console.log('Dados do revendedor:', reseller); // Debug
+
+        // Atualizar informações do revendedor
+        document.getElementById('resellerName').textContent = reseller.name;
+        document.getElementById('resellerEmail').innerHTML = `<i class="fas fa-envelope"></i> ${reseller.email}`;
+        document.getElementById('resellerPhone').innerHTML = `<i class="fas fa-phone"></i> ${reseller.phone || 'Não informado'}`;
+        document.getElementById('resellerAddress').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${reseller.address || 'Não informado'}`;
+        document.getElementById('resellerCreatedAt').innerHTML = `<i class="fas fa-calendar"></i> Revendedor desde ${new Date(reseller.createdAt.toDate()).toLocaleDateString()}`;
+
+        // Atualizar status
+        const statusBadge = document.getElementById('statusBadge');
+        if (statusBadge) {
+          statusBadge.textContent = reseller.is_active ? 'Ativo' : 'Inativo';
+          statusBadge.className = `badge ${reseller.is_active ? 'bg-success' : 'bg-danger'}`;
+        }
+
+        // Atualizar taxa de comissão
+        const commissionRate = document.getElementById('commissionRate');
+        if (commissionRate) {
+          commissionRate.textContent = `${reseller.commission_rate || 0}%`;
+        }
+
+        // Configurar botão de novo pedido
+        const newOrderButton = document.getElementById('newOrderButton');
+        if (newOrderButton) {
+          newOrderButton.href = `create_order.html?id=${resellerId}`;
+        }
+
+        // Carregar dados adicionais
+        await loadAdditionalData(resellerId);
+
+      } catch (error) {
+        console.error('Erro ao carregar dados do revendedor:', error);
+        alert('Erro ao carregar dados do revendedor. Por favor, tente novamente.');
+      }
+    }
+
+    // Carregar dados adicionais
+    async function loadAdditionalData(resellerId) {
+      try {
+        // Carregar histórico de pedidos
+        console.log('Carregando histórico de pedidos...'); // Debug
+        let ordersSnapshot;
+        try {
+          console.log('Tentando carregar pedidos com ordenação...'); // Debug
+          ordersSnapshot = await db.collection('orders')
+            .where('resellerId', '==', resellerId)
+            .orderBy('createdAt', 'desc')
+            .get();
+          console.log('Pedidos carregados com sucesso usando índice!'); // Debug
+        } catch (indexError) {
+          console.warn('Erro ao carregar pedidos ordenados:', indexError);
+          console.log('Tentando carregar pedidos sem ordenação...'); // Debug
+          ordersSnapshot = await db.collection('orders')
+            .where('resellerId', '==', resellerId)
+            .get();
+          console.log('Pedidos carregados sem ordenação.'); // Debug
+        }
+
+        const ordersTable = document.getElementById('ordersHistory');
+        if (!ordersTable) {
+          console.error('Elemento ordersHistory não encontrado!');
+          return;
+        }
+
+        ordersTable.innerHTML = '';
+
+        if (ordersSnapshot.empty) {
+          ordersTable.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum pedido encontrado</td></tr>';
         } else {
-            row.style.display = 'none';
+          ordersSnapshot.forEach(doc => {
+            const order = doc.data();
+            const row = document.createElement('tr');
+            
+            // Formatar produtos para exibição
+            const productsList = order.products.map(p => {
+              return `${p.name} (${p.quantity})`;
+            }).join(', ');
+
+            row.innerHTML = `
+              <td>${order.createdAt.toDate().toLocaleDateString()}</td>
+              <td>${productsList}</td>
+              <td>R$ ${order.total.toFixed(2)}</td>
+              <td>
+                <select class="form-select form-select-sm status-select" data-order-id="${doc.id}" style="width: auto;">
+                  <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pendente</option>
+                  <option value="approved" ${order.status === 'approved' ? 'selected' : ''}>Aprovado</option>
+                  <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Entregue</option>
+                  <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelado</option>
+                </select>
+              </td>
+              <td>
+                <button class="btn btn-sm btn-primary save-status" data-order-id="${doc.id}" style="display: none;">
+                  <i class="fas fa-save"></i>
+                </button>
+              </td>
+            `;
+            ordersTable.appendChild(row);
+
+            // Adicionar evento de mudança de status
+            const statusSelect = row.querySelector('.status-select');
+            const saveButton = row.querySelector('.save-status');
+            
+            statusSelect.addEventListener('change', () => {
+              saveButton.style.display = 'inline-block';
+            });
+
+            saveButton.addEventListener('click', async () => {
+              try {
+                const newStatus = statusSelect.value;
+                await db.collection('orders').doc(doc.id).update({
+                  status: newStatus,
+                  updatedAt: new Date()
+                });
+                saveButton.style.display = 'none';
+                alert('Status atualizado com sucesso!');
+              } catch (error) {
+                console.error('Erro ao atualizar status:', error);
+                alert('Erro ao atualizar status. Por favor, tente novamente.');
+              }
+            });
+          });
         }
-    });
-}
 
-function filterSales(period) {
-    const rows = document.querySelectorAll('#salesTable tbody tr');
-    const now = new Date();
-    const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-    const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-    
-    rows.forEach(row => {
-        const saleDate = new Date(row.dataset.date);
-        let show = false;
-        
-        switch(period) {
-            case 'all':
-                show = true;
-                break;
-            case 'month':
-                show = saleDate >= oneMonthAgo;
-                break;
-            case 'year':
-                show = saleDate >= oneYearAgo;
-                break;
+        // Carregar estoque atual
+        console.log('Carregando estoque...'); // Debug
+        const stockSnapshot = await db.collection('orders')
+            .where('resellerId', '==', resellerId)
+            .where('status', '==', 'delivered')
+            .get();
+
+        const currentStock = document.getElementById('currentStock');
+        if (!currentStock) {
+            console.error('Elemento currentStock não encontrado!');
+            return;
         }
+
+        currentStock.innerHTML = '';
+        let totalStockValue = 0;
+
+        // Mapa para armazenar o estoque atual
+        const stockMap = new Map();
+
+        if (stockSnapshot.empty) {
+            currentStock.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum produto em estoque</td></tr>';
+        } else {
+            // Calcular estoque total de cada produto
+            stockSnapshot.forEach(doc => {
+                const order = doc.data();
+                order.products.forEach(product => {
+                    const key = `${product.product_id}-${product.name}`;
+                    if (!stockMap.has(key)) {
+                        stockMap.set(key, {
+                            name: product.name,
+                            quantity: 0,
+                            price: product.price,
+                            last_sale: order.createdAt
+                        });
+                    }
+                    const currentStock = stockMap.get(key);
+                    currentStock.quantity += product.quantity;
+                    if (order.createdAt > currentStock.last_sale) {
+                        currentStock.last_sale = order.createdAt;
+                    }
+                });
+            });
+
+            // Ordenar produtos por nome
+            const sortedProducts = Array.from(stockMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+
+            // Exibir produtos em estoque
+            sortedProducts.forEach(product => {
+                const row = document.createElement('tr');
+                const totalValue = product.quantity * product.price;
+                totalStockValue += totalValue;
+
+                row.innerHTML = `
+                    <td>${product.name}</td>
+                    <td>${product.quantity}</td>
+                    <td>R$ ${product.price.toFixed(2)}</td>
+                    <td>R$ ${totalValue.toFixed(2)}</td>
+                    <td>${product.last_sale.toDate().toLocaleDateString()}</td>
+                `;
+                currentStock.appendChild(row);
+            });
+
+            // Adicionar linha de total
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'table-info';
+            totalRow.innerHTML = `
+                <td colspan="3"><strong>Total em Estoque</strong></td>
+                <td colspan="2"><strong>R$ ${totalStockValue.toFixed(2)}</strong></td>
+            `;
+            currentStock.appendChild(totalRow);
+        }
+
+        // Calcular totais de vendas e comissões
+        let totalSales = 0;
+        let totalCommission = 0;
+
+        ordersSnapshot.forEach(doc => {
+            const order = doc.data();
+            if (order.status === 'delivered') {
+                totalSales += order.total;
+                const commission = order.total * (order.commission_rate / 100);
+                totalCommission += commission;
+            }
+        });
+
+        // Atualizar totais
+        const totalSalesElement = document.getElementById('totalSales');
+        const totalCommissionElement = document.getElementById('totalCommission');
+
+        if (totalSalesElement) {
+            totalSalesElement.textContent = `R$ ${totalSales.toFixed(2)}`;
+        }
+        if (totalCommissionElement) {
+            totalCommissionElement.textContent = `R$ ${totalCommission.toFixed(2)}`;
+        }
+
+        console.log('Dados adicionais carregados com sucesso'); // Debug
+      } catch (error) {
+        console.error('Erro ao carregar dados adicionais:', error);
+        console.error('Detalhes do erro:', {
+          message: error.message,
+          code: error.code,
+          stack: error.stack
+        });
         
-        row.style.display = show ? '' : 'none';
+        // Mostrar mensagens de erro em cada seção
+        const ordersTable = document.getElementById('ordersHistory');
+        const currentStock = document.getElementById('currentStock');
+        const totalSalesElement = document.getElementById('totalSales');
+        const totalCommissionElement = document.getElementById('totalCommission');
+
+        if (ordersTable) {
+          ordersTable.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Erro ao carregar pedidos</td></tr>';
+        }
+        if (currentStock) {
+          currentStock.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Erro ao carregar estoque</td></tr>';
+        }
+        if (totalSalesElement) {
+          totalSalesElement.textContent = 'Erro';
+        }
+        if (totalCommissionElement) {
+          totalCommissionElement.textContent = 'Erro';
+        }
+      }
+    }
+
+    // Carregar produtos do estoque para o modal de nova venda
+    async function loadStockProducts(resellerId) {
+      try {
+        // Buscar todos os produtos cadastrados
+        const productsSnapshot = await db.collection('products').get();
+        // Buscar estoque do revendedor
+        const stockSnapshot = await db.collection('reseller_stock')
+          .where('resellerId', '==', resellerId)
+          .get();
+
+        // Mapear estoque do revendedor: { product_id: { quantity, unit_price } }
+        const stockMap = {};
+        stockSnapshot.forEach(doc => {
+          const stock = doc.data();
+          stockMap[stock.product_id] = {
+            quantity: stock.quantity,
+            unit_price: stock.unit_price
+          };
+        });
+
+        const productsList = document.getElementById('stockProducts');
+        if (productsSnapshot.empty) {
+          productsList.innerHTML = '<div class="alert alert-warning">Nenhum produto cadastrado</div>';
+          return;
+        }
+
+        productsList.innerHTML = '';
+        productsSnapshot.forEach(doc => {
+          const product = doc.data();
+          const productId = doc.id;
+          const stock = stockMap[productId] || { quantity: 0, unit_price: product.price || 0 };
+          // Só exibe botão de adicionar se houver estoque
+          const canAdd = stock.quantity > 0;
+          const card = document.createElement('div');
+          card.className = 'col-md-4 mb-3';
+          card.innerHTML = `
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">${product.name}</h5>
+                <p class="card-text">
+                  <strong>Quantidade em Estoque:</strong> ${stock.quantity}<br>
+                  <strong>Valor Unitário:</strong> R$ ${(stock.unit_price).toFixed(2)}<br>
+                  <strong>Valor Total:</strong> R$ ${(stock.quantity * stock.unit_price).toFixed(2)}
+                </p>
+                <button class="btn btn-primary btn-sm" ${canAdd ? '' : 'disabled'} onclick="addToSale('${productId}', '${product.name}', ${stock.unit_price})">
+                  <i class="fas fa-plus"></i> Adicionar à Venda
+                </button>
+              </div>
+            </div>
+          `;
+          productsList.appendChild(card);
+        });
+      } catch (error) {
+        console.error('Erro ao carregar produtos do estoque:', error);
+        document.getElementById('stockProducts').innerHTML = 
+          '<div class="alert alert-danger">Erro ao carregar produtos do estoque</div>';
+      }
+    }
+
+    // Adicionar produto à venda
+    function addToSale(productId, productName, unitPrice) {
+      const saleProducts = document.getElementById('saleProducts');
+      const productRow = document.createElement('div');
+      productRow.className = 'row mb-2 align-items-center';
+      productRow.innerHTML = `
+        <div class="col-md-6">
+          <input type="text" class="form-control" value="${productName}" readonly>
+          <input type="hidden" name="product_ids[]" value="${productId}">
+        </div>
+        <div class="col-md-3">
+          <input type="number" class="form-control quantity-input" name="quantities[]" 
+                 min="1" value="1" onchange="updateTotal(this)">
+        </div>
+        <div class="col-md-2">
+          <input type="text" class="form-control total-price" readonly 
+                 value="R$ ${unitPrice.toFixed(2)}">
+        </div>
+        <div class="col-md-1">
+          <button type="button" class="btn btn-danger btn-sm" onclick="removeProduct(this)">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      `;
+      saleProducts.appendChild(productRow);
+      updateOrderTotal();
+    }
+
+    // Atualizar total do produto
+    function updateTotal(input) {
+      const row = input.closest('.row');
+      const quantity = parseInt(input.value) || 0;
+      const unitPrice = parseFloat(row.querySelector('.total-price').value.replace('R$ ', '').replace(',', '.'));
+      const total = quantity * unitPrice;
+      row.querySelector('.total-price').value = `R$ ${total.toFixed(2)}`;
+      updateOrderTotal();
+    }
+
+    // Atualizar total do pedido
+    function updateOrderTotal() {
+      let total = 0;
+      document.querySelectorAll('.total-price').forEach(input => {
+        const value = parseFloat(input.value.replace('R$ ', '').replace(',', '.')) || 0;
+        total += value;
+      });
+      document.getElementById('orderTotal').value = `R$ ${total.toFixed(2)}`;
+    }
+
+    // Remover produto da venda
+    function removeProduct(button) {
+      button.closest('.row').remove();
+      updateOrderTotal();
+    }
+
+    // Salvar venda
+    async function saveSale() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const resellerId = urlParams.get('id');
+        
+        const products = [];
+        let total = 0;
+        
+        document.querySelectorAll('#saleProducts .row').forEach(row => {
+          const productId = row.querySelector('input[name="product_ids[]"]').value;
+          const productName = row.querySelector('input[readonly]').value;
+          const quantity = parseInt(row.querySelector('input[name="quantities[]"]').value);
+          const price = parseFloat(row.querySelector('.total-price').value.replace('R$ ', '').replace(',', '.'));
+          
+          products.push({
+            product_id: productId,
+            name: productName,
+            quantity: quantity,
+            price: price / quantity
+          });
+          
+          total += price;
+        });
+
+        if (products.length === 0) {
+          alert('Adicione pelo menos um produto à venda');
+          return;
+        }
+
+        // Buscar taxa de comissão do revendedor
+        const resellerDoc = await db.collection('resellers').doc(resellerId).get();
+        const commissionRate = resellerDoc.data().commission_rate || 0;
+
+        // Salvar venda
+        await db.collection('sales').add({
+          resellerId: resellerId,
+          products: products,
+          total: total,
+          commission_rate: commissionRate,
+          createdAt: new Date()
+        });
+
+        // Atualizar estoque
+        for (const product of products) {
+          const stockRef = db.collection('reseller_stock').doc(product.product_id);
+          const stockDoc = await stockRef.get();
+          
+          if (stockDoc.exists) {
+            const currentStock = stockDoc.data().quantity;
+            await stockRef.update({
+              quantity: currentStock - product.quantity,
+              last_sale: new Date()
+            });
+          }
+        }
+
+        alert('Venda registrada com sucesso!');
+        location.reload();
+      } catch (error) {
+        console.error('Erro ao salvar venda:', error);
+        alert('Erro ao salvar venda: ' + error.message);
+      }
+    }
+
+    // Carregar dados ao iniciar a página
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const resellerId = urlParams.get('id');
+      
+      if (resellerId) {
+        await Promise.all([
+          loadResellerData(),
+          loadStockProducts(resellerId)
+        ]);
+      }
     });
-}
-
-function toggleAllOrders(checkbox) {
-    const checkboxes = document.querySelectorAll('.order-checkbox');
-    checkboxes.forEach(cb => cb.checked = checkbox.checked);
-}
-
-function toggleAllSales(checkbox) {
-    const checkboxes = document.querySelectorAll('.sale-checkbox');
-    checkboxes.forEach(cb => cb.checked = checkbox.checked);
-}
-
-function deleteSelectedOrders() {
-    const selectedOrders = Array.from(document.querySelectorAll('.order-checkbox:checked'))
-        .map(checkbox => checkbox.value);
-    
-    if (selectedOrders.length === 0) {
-        alert('Selecione pelo menos um pedido para excluir.');
-        return;
-    }
-    
-    if (confirm(`Tem certeza que deseja excluir ${selectedOrders.length} pedido(s)?`)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = "{{ url_for('resellers.delete_orders', id=reseller.id) }}";
-        
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'order_ids';
-        input.value = JSON.stringify(selectedOrders);
-        form.appendChild(input);
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-
-function deleteSelectedSales() {
-    const selectedSales = Array.from(document.querySelectorAll('.sale-checkbox:checked'))
-        .map(checkbox => checkbox.value);
-    
-    if (selectedSales.length === 0) {
-        alert('Selecione pelo menos uma venda para excluir.');
-        return;
-    }
-    
-    if (confirm(`Tem certeza que deseja excluir ${selectedSales.length} venda(s)?`)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = "{{ url_for('resellers.delete_sales', id=reseller.id) }}";
-        
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'sale_ids';
-        input.value = JSON.stringify(selectedSales);
-        form.appendChild(input);
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
-</script>
-{% endblock %} 
+  </script>
+</body>
+</html> 

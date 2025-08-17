@@ -1,16 +1,41 @@
-{% extends "base.html" %}
-
-{% block title %}Registro Mensal de Vendas - {{ reseller.name }}{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro Mensal de Vendas - Radiante Perfumaria</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="../index.html">Radiante</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="../index.html">Início</a></li>
+        <li class="nav-item"><a class="nav-link" href="../main/dashboard.html">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="../products/index.html">Produtos</a></li>
+        <li class="nav-item"><a class="nav-link" href="../resellers/index.html">Revendedores</a></li>
+        <li class="nav-item"><a class="nav-link" href="../tasks/index.html">Tarefas</a></li>
+        <li class="nav-item"><a class="nav-link" href="../auth/login.html">Login</a></li>
+        <li class="nav-item"><a class="nav-link" href="../auth/register.html">Cadastro</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+<!-- Conteúdo da página convertido para HTML puro, exemplos estáticos -->
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Registro Mensal de Vendas</h1>
-        <a href="{{ url_for('resellers.show', id=reseller.id) }}" class="btn btn-outline-dark">
+        <a href="show.html" class="btn btn-outline-dark">
             <i class="fas fa-arrow-left"></i> Voltar
         </a>
     </div>
-
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <form method="POST" id="monthlySalesForm">
@@ -18,21 +43,25 @@
                     <div class="col-md-6">
                         <label for="month" class="form-label">Mês</label>
                         <select class="form-select" id="month" name="month" required>
-                            {% for i in range(1, 13) %}
-                                <option value="{{ i }}" {% if i == current_month %}selected{% endif %}>
-                                    {{ i }} - {{ ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
-                                                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'][i-1] }}
-                                </option>
-                            {% endfor %}
+                            <option value="1">1 - Janeiro</option>
+                            <option value="2">2 - Fevereiro</option>
+                            <option value="3">3 - Março</option>
+                            <option value="4">4 - Abril</option>
+                            <option value="5">5 - Maio</option>
+                            <option value="6">6 - Junho</option>
+                            <option value="7">7 - Julho</option>
+                            <option value="8">8 - Agosto</option>
+                            <option value="9">9 - Setembro</option>
+                            <option value="10">10 - Outubro</option>
+                            <option value="11">11 - Novembro</option>
+                            <option value="12">12 - Dezembro</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label for="year" class="form-label">Ano</label>
-                        <input type="number" class="form-control" id="year" name="year" 
-                               value="{{ current_year }}" required>
+                        <input type="number" class="form-control" id="year" name="year" value="2024" required>
                     </div>
                 </div>
-
                 <div class="table-responsive mb-4">
                     <table class="table table-hover">
                         <thead>
@@ -43,21 +72,19 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for product in products %}
                             <tr>
-                                <td>{{ product.name }}</td>
-                                <td>R$ {{ "%.2f"|format(product.price) }}</td>
-                                <td>
-                                    <input type="number" class="form-control quantity-input" 
-                                           data-product-id="{{ product.id }}"
-                                           min="0" value="0">
-                                </td>
+                                <td>Produto Exemplo 1</td>
+                                <td>R$ 50,00</td>
+                                <td><input type="number" class="form-control quantity-input" data-product-id="1" min="0" value="0"></td>
                             </tr>
-                            {% endfor %}
+                            <tr>
+                                <td>Produto Exemplo 2</td>
+                                <td>R$ 30,00</td>
+                                <td><input type="number" class="form-control quantity-input" data-product-id="2" min="0" value="0"></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
-
                 <div class="text-end">
                     <button type="submit" class="btn btn-dark">
                         <i class="fas fa-save"></i> Registrar Venda Mensal
@@ -67,7 +94,7 @@
         </div>
     </div>
 </div>
-
+<!-- O JS pode ser mantido, pois é puro -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('monthlySalesForm');
@@ -97,4 +124,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-{% endblock %} 
+</body>
+</html> 
