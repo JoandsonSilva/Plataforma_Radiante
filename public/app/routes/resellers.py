@@ -48,19 +48,57 @@ def create():
             commission_rate=commission_rate
         )
         
-        # Processar upload da foto
+        # Processar upload da foto para o Firebase Storage
         if 'photo' in request.files:
             photo = request.files['photo']
             if photo and allowed_file(photo.filename):
                 filename = secure_filename(photo.filename)
-                # Gerar um nome único para o arquivo
-                unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{filename}"
-                photo.save(os.path.join('app', 'static', 'uploads', 'resellers', unique_filename))
-                reseller.photo_url = f'/static/uploads/resellers/{unique_filename}'
+                unique_filename = f"resellers/{int(datetime.now().timestamp() * 1000)}_{filename}"
+                # Salvar temporariamente
+                temp_path = os.path.join('tmp', unique_filename.replace('/', '_'))
+                os.makedirs(os.path.dirname(temp_path), exist_ok=True)
+                photo.save(temp_path)
+                # Upload para Firebase Storage
+                try:
+                    from google.cloud import storage
+                    storage_client = storage.Client.from_service_account_json('public/firebase-credentials.json')
+                    bucket = storage_client.bucket('plataforma-radiante.appspot.com')
+                    blob = bucket.blob(unique_filename)
+                    blob.upload_from_filename(temp_path)
+                    blob.make_public()
+                    reseller.photo_url = blob.public_url
+                except Exception as e:
+                    print(f"Erro ao fazer upload para o Firebase Storage: {str(e)}")
+                    reseller.photo_url = None
+                # Remover arquivo temporário
+                try:
+                    os.remove(temp_path)
+                except Exception:
+                    pass
         
         db.session.add(reseller)
         db.session.commit()
-        
+
+        # Salvar revendedor no Firebase Database
+        try:
+            from app.firebase_config import firebase
+            db_firebase = firebase.database()
+            reseller_data = {
+                "name": name,
+                "email": email,
+                "phone": phone,
+                "address": address,
+                "city": city,
+                "state": state,
+                "zip_code": zip_code,
+                "document": document,
+                "commission_rate": commission_rate,
+                "photo_url": getattr(reseller, 'photo_url', None)
+            }
+            db_firebase.child("resellers").push(reseller_data)
+        except Exception as e:
+            print(f"Erro ao salvar revendedor no Firebase: {str(e)}")
+
         flash('Revendedor criado com sucesso!', 'success')
         return redirect(url_for('resellers.index'))
     
